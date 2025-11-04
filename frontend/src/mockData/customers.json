@@ -1,0 +1,254 @@
+{
+  "customers": [
+    {
+      "id": "1",
+      "firstName": "Marie",
+      "lastName": "Kabila",
+      "email": "marie.kabila@example.com",
+      "phone": "+243 123 456 789",
+      "address": {
+        "street": "123 Main Street",
+        "city": "Kinshasa",
+        "state": "Kinshasa",
+        "zipCode": "00000",
+        "country": "DR Congo"
+      },
+      "bookings": [
+        {
+          "id": "1",
+          "bookingNumber": "HB-2024-001",
+          "type": "At-Home Service",
+          "category": "Hair Styling",
+          "status": "confirmed",
+          "paymentStatus": "paid",
+          "scheduledDate": "2024-01-15",
+          "scheduledTime": "10:00",
+          "total": 150000,
+          "serviceType": "hair",
+          "beautician": {
+            "id": "1",
+            "firstName": "Grace",
+            "lastName": "Mukendi",
+            "skills": ["Hair Styling", "Coloring", "Braids"]
+          },
+          "services": [
+            { "id": "1", "name": "Hair Cut & Style", "price": 100000, "duration": 60 },
+            { "id": "2", "name": "Hair Coloring", "price": 50000, "duration": 120 }
+          ],
+          "createdAt": "2024-01-10T10:00:00Z"
+        },
+        {
+          "id": "2",
+          "bookingNumber": "HB-2024-002",
+          "type": "Salon Visit",
+          "category": "Facial Treatment",
+          "status": "completed",
+          "paymentStatus": "paid",
+          "scheduledDate": "2024-01-10",
+          "scheduledTime": "14:00",
+          "total": 75000,
+          "serviceType": "face",
+          "beautician": {
+            "id": "2",
+            "firstName": "Sarah",
+            "lastName": "Lukaku",
+            "skills": ["Facial Treatments", "Skincare", "Makeup"]
+          },
+          "services": [
+            { "id": "3", "name": "Deep Cleansing Facial", "price": 75000, "duration": 90 }
+          ],
+          "createdAt": "2024-01-08T14:00:00Z"
+        }
+      ],
+      "invoices": [
+        {
+          "invoiceId": "INV-2024-001",
+          "bookingId": "HB-2024-001",
+          "amount": 150000,
+          "status": "Paid",
+          "issueDate": "2024-01-10",
+          "dueDate": "2024-01-15",
+          "services": [
+            { "name": "Hair Cut & Style", "price": 100000 },
+            { "name": "Hair Coloring", "price": 50000 }
+          ]
+        },
+        {
+          "invoiceId": "INV-2024-002",
+          "bookingId": "HB-2024-002",
+          "amount": 75000,
+          "status": "Paid",
+          "issueDate": "2024-01-08",
+          "dueDate": "2024-01-10",
+          "services": [
+            { "name": "Deep Cleansing Facial", "price": 75000 }
+          ]
+        }
+      ],
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "2",
+      "firstName": "Jean",
+      "lastName": "Mukendi",
+      "email": "jean.mukendi@example.com",
+      "phone": "+243 987 654 321",
+      "address": {
+        "street": "456 Avenue de la Paix",
+        "city": "Kinshasa",
+        "state": "Kinshasa",
+        "zipCode": "00000",
+        "country": "DR Congo"
+      },
+      "bookings": [
+        {
+          "id": "3",
+          "bookingNumber": "HB-2024-003",
+          "type": "At-Home Service",
+          "category": "Nail Care",
+          "status": "pending",
+          "paymentStatus": "unpaid",
+          "scheduledDate": "2024-01-20",
+          "scheduledTime": "16:00",
+          "total": 120000,
+          "serviceType": "extras",
+          "services": [
+            { "id": "4", "name": "Manicure & Pedicure", "price": 120000, "duration": 120 }
+          ],
+          "createdAt": "2024-01-12T16:00:00Z"
+        }
+      ],
+      "invoices": [
+        {
+          "invoiceId": "INV-2024-003",
+          "bookingId": "HB-2024-003",
+          "amount": 120000,
+          "status": "Pending",
+          "issueDate": "2024-01-12",
+          "dueDate": "2024-01-20",
+          "services": [
+            { "name": "Manicure & Pedicure", "price": 120000 }
+          ]
+        }
+      ],
+      "createdAt": "2024-01-05T00:00:00Z"
+    }
+  ],
+  "services": {
+    "atHome": {
+      "hair": [
+        {
+          "id": "1",
+          "name": "Hair Cut & Style",
+          "description": "Professional hair cutting and styling at your home",
+          "price": 100000,
+          "duration": 60,
+          "category": "Hair Styling"
+        },
+        {
+          "id": "2",
+          "name": "Hair Coloring",
+          "description": "Professional hair coloring services",
+          "price": 150000,
+          "duration": 120,
+          "category": "Hair Styling"
+        },
+        {
+          "id": "3",
+          "name": "Bridal Hair Styling",
+          "description": "Special bridal hair styling and makeup",
+          "price": 200000,
+          "duration": 180,
+          "category": "Hair Styling"
+        }
+      ],
+      "face": [
+        {
+          "id": "4",
+          "name": "Deep Cleansing Facial",
+          "description": "Deep cleansing and rejuvenating facial treatment",
+          "price": 75000,
+          "duration": 90,
+          "category": "Facial Treatment"
+        },
+        {
+          "id": "5",
+          "name": "Anti-Aging Facial",
+          "description": "Anti-aging facial treatment with premium products",
+          "price": 120000,
+          "duration": 120,
+          "category": "Facial Treatment"
+        }
+      ],
+      "extras": [
+        {
+          "id": "6",
+          "name": "Manicure & Pedicure",
+          "description": "Professional nail care and styling",
+          "price": 120000,
+          "duration": 120,
+          "category": "Nail Care"
+        },
+        {
+          "id": "7",
+          "name": "Eyebrow Shaping",
+          "description": "Professional eyebrow shaping and styling",
+          "price": 50000,
+          "duration": 45,
+          "category": "Nail Care"
+        }
+      ]
+    },
+    "salon": [
+      {
+        "id": "1",
+        "name": "Belle Époque Salon",
+        "address": "789 Avenue des Artistes, Kinshasa",
+        "phone": "+243 111 222 333",
+        "rating": 4.8,
+        "services": [
+          {
+            "id": "1",
+            "name": "Hair Cut & Style",
+            "price": 80000,
+            "duration": 60
+          },
+          {
+            "id": "2",
+            "name": "Hair Coloring",
+            "price": 120000,
+            "duration": 120
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "Glamour Studio",
+        "address": "321 Boulevard du 30 Juin, Kinshasa",
+        "phone": "+243 444 555 666",
+        "rating": 4.6,
+        "services": [
+          {
+            "id": "3",
+            "name": "Manicure & Pedicure",
+            "price": 100000,
+            "duration": 120
+          },
+          {
+            "id": "4",
+            "name": "Bridal Makeup",
+            "price": 150000,
+            "duration": 180
+          }
+        ]
+      }
+    ]
+  },
+  "stats": {
+    "totalCustomers": 2,
+    "activeBookings": 2,
+    "completedBookings": 1,
+    "pendingPayments": 1,
+    "totalRevenue": 345000
+  }
+}

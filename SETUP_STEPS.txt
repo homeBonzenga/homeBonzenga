@@ -1,0 +1,36 @@
+📧 GMAIL SMTP SETUP - Quick Start
+=================================
+
+Step 1: Enable 2-Step Verification
+------------------------------------
+Go to: https://myaccount.google.com
+→ Security
+→ Enable "2-Step Verification"
+(This is required before you can use App Passwords)
+
+Step 2: Generate App Password
+--------------------------------
+Go to: https://myaccount.google.com/apppasswords
+→ Select app: Mail
+→ Select device: Other (type "Home Bonzenga Server")
+→ Click Generate
+→ Copy the 16-character password
+
+Step 3: Configure .env File
+-----------------------------
+Open: server/.env
+Replace these values:
+
+SMTP_USER=your-actual-gmail@gmail.com
+SMTP_PASS=the-16-character-app-password
+
+MANAGER_EMAILS=your-manager@email.com
+
+Step 4: Test
+-------------
+Run: npm run dev
+Look for: "📧 Email notifications: ENABLED"
+Register a vendor to test!
+
+For detailed instructions, see: GMAIL_SMTP_SETUP_GUIDE.md
+

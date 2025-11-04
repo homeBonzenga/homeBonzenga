@@ -1,0 +1,170 @@
+{
+  "pendingVendors": [
+    {
+      "id": "2",
+      "shopName": "Glamour Studio",
+      "owner": {
+        "firstName": "Sarah",
+        "lastName": "Lukaku",
+        "email": "sarah@glamourstudio.com",
+        "phone": "+243 444 555 666"
+      },
+      "address": {
+        "street": "321 Boulevard du 30 Juin",
+        "city": "Kinshasa",
+        "state": "Kinshasa",
+        "zipCode": "00000",
+        "country": "DR Congo"
+      },
+      "services": [
+        {
+          "id": "4",
+          "name": "Manicure & Pedicure",
+          "category": "extras",
+          "price": 120000,
+          "duration": 120,
+          "description": "Professional nail care and styling"
+        },
+        {
+          "id": "5",
+          "name": "Bridal Makeup",
+          "category": "face",
+          "price": 200000,
+          "duration": 180,
+          "description": "Complete bridal makeup package"
+        }
+      ],
+      "submittedAt": "2024-01-10T00:00:00Z",
+      "status": "pending"
+    }
+  ],
+  "approvedVendors": [
+    {
+      "id": "1",
+      "shopName": "Belle Époque Salon",
+      "owner": {
+        "firstName": "Grace",
+        "lastName": "Mukendi",
+        "email": "grace@bellepoque.com",
+        "phone": "+243 111 222 333"
+      },
+      "address": {
+        "street": "789 Avenue des Artistes",
+        "city": "Kinshasa",
+        "state": "Kinshasa",
+        "zipCode": "00000",
+        "country": "DR Congo"
+      },
+      "status": "approved",
+      "approvedAt": "2024-01-02T00:00:00Z",
+      "services": [
+        {
+          "id": "1",
+          "name": "Hair Cut & Style",
+          "category": "hair",
+          "price": 100000,
+          "duration": 60,
+          "description": "Professional hair cutting and styling"
+        },
+        {
+          "id": "2",
+          "name": "Hair Coloring",
+          "category": "hair",
+          "price": 150000,
+          "duration": 120,
+          "description": "Professional hair coloring services"
+        },
+        {
+          "id": "3",
+          "name": "Deep Cleansing Facial",
+          "category": "face",
+          "price": 75000,
+          "duration": 90,
+          "description": "Deep cleansing and rejuvenating facial treatment"
+        }
+      ]
+    }
+  ],
+  "pendingBeauticians": [
+    {
+      "id": "2",
+      "firstName": "Sarah",
+      "lastName": "Lukaku",
+      "email": "sarah.beautician@example.com",
+      "phone": "+243 444 555 666",
+      "skills": ["Facial Treatments", "Skincare", "Makeup", "Manicure"],
+      "yearsOfExperience": "3",
+      "city": "Kinshasa",
+      "address": "456 Wellness Avenue, Kinshasa",
+      "bio": "Skincare specialist and makeup artist with expertise in facial treatments and beauty enhancement.",
+      "status": "pending_manager_review",
+      "createdAt": "2024-01-08T00:00:00Z"
+    }
+  ],
+  "approvedBeauticians": [
+    {
+      "id": "1",
+      "firstName": "Grace",
+      "lastName": "Mukendi",
+      "email": "grace.beautician@example.com",
+      "phone": "+243 111 222 333",
+      "skills": ["Hair Styling", "Coloring", "Braids", "Hair Treatment"],
+      "yearsOfExperience": "5",
+      "city": "Kinshasa",
+      "address": "123 Beauty Street, Kinshasa",
+      "bio": "Professional hair stylist with 5 years of experience in modern and traditional hairstyles.",
+      "status": "approved",
+      "averageRating": 4.8,
+      "totalServices": 45,
+      "totalEarnings": 6750000,
+      "approvedAt": "2024-01-02T00:00:00Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "1",
+      "customerName": "Marie Kabila",
+      "service": "Hair Cut & Style",
+      "vendor": "Belle Époque Salon",
+      "beautician": "Grace Mukendi",
+      "date": "2024-01-15",
+      "time": "10:00",
+      "status": "confirmed",
+      "total": 100000,
+      "type": "in-store"
+    },
+    {
+      "id": "2",
+      "customerName": "Jean Mukendi",
+      "service": "Deep Cleansing Facial",
+      "vendor": "Belle Époque Salon",
+      "beautician": "Sarah Lukaku",
+      "date": "2024-01-16",
+      "time": "14:00",
+      "status": "completed",
+      "total": 75000,
+      "type": "in-store"
+    },
+    {
+      "id": "3",
+      "customerName": "Marie Kabila",
+      "service": "Hair Coloring",
+      "beautician": "Grace Mukendi",
+      "date": "2024-01-20",
+      "time": "16:00",
+      "status": "pending",
+      "total": 150000,
+      "type": "at-home"
+    }
+  ],
+  "stats": {
+    "pendingVendors": 1,
+    "approvedVendors": 1,
+    "pendingBeauticians": 1,
+    "approvedBeauticians": 1,
+    "totalAppointments": 3,
+    "pendingAppointments": 1,
+    "completedAppointments": 1,
+    "confirmedAppointments": 1
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "howItWorks": "How It Works",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account to continue",
+      "email": "Email",
+      "password": "Password",
+      "enterEmail": "Enter your email",
+      "enterPassword": "Enter your password",
+      "signIn": "Sign In",
+      "signingIn": "Signing In...",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign Up",
+      "demoAccounts": "Demo Accounts"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join HOME BONZENGA and start your beauty journey",
+      "accountType": "Account Type",
+      "customer": "Customer",
+      "professional": "Professional",
+      "beautician": "Beautician",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "createPassword": "Create Password",
+      "confirmYourPassword": "Confirm Your Password",
+      "createAccount": "Create Account",
+      "creatingAccount": "Creating Account...",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign In"
+    }
+  },
+  "dashboard": {
+    "customer": {
+      "welcome": "Welcome back, {{name}}!",
+      "subtitle": "Manage your beauty appointments and bookings",
+      "upcomingAppointments": "Upcoming Appointments",
+      "recentBookings": "Recent Bookings",
+      "quickActions": "Quick Actions",
+      "featuredServices": "Featured Services",
+      "bookNewAppointment": "Book New Appointment",
+      "viewAllBookings": "View All Bookings",
+      "searchServices": "Search Services",
+      "viewProfile": "View Profile",
+      "noUpcoming": "No upcoming appointments",
+      "noRecentBookings": "No recent bookings",
+      "manicure": "Manicure",
+      "manicureDesc": "Professional nail care and styling",
+      "hairStyling": "Hair Styling",
+      "hairStylingDesc": "Cut, color, and style your hair",
+      "facial": "Facial Treatment",
+      "facialDesc": "Rejuvenating skin care treatment",
+      "makeup": "Makeup",
+      "makeupDesc": "Professional makeup application"
+    }
+  }
+}
+

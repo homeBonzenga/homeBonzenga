@@ -1,0 +1,82 @@
+{
+  "common": {
+    "loading": "Ezali kotongisa...",
+    "error": "Libunga",
+    "success": "Nyonso",
+    "cancel": "Kozongisa",
+    "save": "Kobomba",
+    "delete": "Kolimola",
+    "edit": "Kobongola",
+    "add": "Kobakisa",
+    "search": "Koluka",
+    "filter": "Kosala filtre",
+    "clear": "Kobebisa",
+    "back": "Kozongela",
+    "next": "Elandi",
+    "previous": "Ya liboso",
+    "submit": "Kotinda",
+    "close": "Kofungola",
+    "yes": "Iyo",
+    "no": "Té",
+    "confirm": "Kondima",
+    "actions": "Misala"
+  },
+  "navigation": {
+    "home": "Ndako",
+    "services": "Misala",
+    "vendors": "Bato ya misala",
+    "appointments": "Mikolo ya kokutana",
+    "products": "Biloko",
+    "payments": "Mikolo ya mbongo",
+    "dashboard": "Tableau de bord",
+    "profile": "Likambo na yo",
+    "logout": "Kolongola",
+    "login": "Kota",
+    "register": "Koma",
+    "findServices": "Koluka Misala",
+    "myBookings": "Mikolo na ngai ya kokutana",
+    "manageBookings": "Kobongola Mikolo ya Kokutana",
+    "adminPanel": "Panneau ya Admin",
+    "getStarted": "Kotanga"
+  },
+  "footer": {
+    "company": {
+      "about": "Tala na biso",
+      "careers": "Misala",
+      "contact": "Kopesa nsango na biso",
+      "terms": "Mikolo ya kosalela",
+      "privacy": "Politique ya bopole"
+    },
+    "services": {
+      "title": "Misala",
+      "atHome": "Misala na ndako",
+      "salons": "Misala ya salon",
+      "categories": "Mitindo ya misala",
+      "booking": "Kobomba mikolo ya kokutana"
+    },
+    "support": {
+      "title": "Lisungi",
+      "help": "Centre ya lisungi",
+      "faq": "Mituna mingi"
+    },
+    "social": {
+      "title": "Kopesa nsango & Social"
+    },
+    "forCustomers": "Mpo na bato ya kosomba",
+    "bookServices": "Kobomba Misala",
+    "findProfessionals": "Koluka Bato ya Misala",
+    "trackBookings": "Kolanda Mikolo ya Kokutana",
+    "leaveReviews": "Kotika Makomi",
+    "forProfessionals": "Mpo na Bato ya Misala",
+    "joinPlatform": "Kozwa na Plateforme",
+    "manageBookings": "Kobongola Mikolo ya Kokutana",
+    "growBusiness": "Kobakisa Business",
+    "getPaid": "Kozwa mbongo",
+    "copyright": "© 2024 HOME BONZENGA. Mikolo nyonso ezali kobatama."
+  },
+  "language": {
+    "english": "Anglais",
+    "french": "Français",
+    "switchLanguage": "Kobongola lolemo"
+  }
+}

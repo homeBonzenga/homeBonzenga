@@ -1,0 +1,209 @@
+{
+  "vendors": [
+    {
+      "id": "1",
+      "shopName": "Belle Époque Salon",
+      "owner": {
+        "firstName": "Grace",
+        "lastName": "Mukendi",
+        "email": "grace@bellepoque.com",
+        "phone": "+243 111 222 333"
+      },
+      "address": {
+        "street": "789 Avenue des Artistes",
+        "city": "Kinshasa",
+        "state": "Kinshasa",
+        "zipCode": "00000",
+        "country": "DR Congo"
+      },
+      "status": "approved",
+      "services": [
+        {
+          "id": "1",
+          "name": "Hair Cut & Style",
+          "category": "hair",
+          "price": 100000,
+          "duration": 60,
+          "description": "Professional hair cutting and styling",
+          "isActive": true
+        },
+        {
+          "id": "2",
+          "name": "Hair Coloring",
+          "category": "hair",
+          "price": 150000,
+          "duration": 120,
+          "description": "Professional hair coloring services",
+          "isActive": true
+        },
+        {
+          "id": "3",
+          "name": "Deep Cleansing Facial",
+          "category": "face",
+          "price": 75000,
+          "duration": 90,
+          "description": "Deep cleansing and rejuvenating facial treatment",
+          "isActive": true
+        }
+      ],
+      "appointments": [
+        {
+          "id": "1",
+          "customerName": "Marie Kabila",
+          "customerEmail": "marie.kabila@example.com",
+          "customerPhone": "+243 123 456 789",
+          "service": "Hair Cut & Style",
+          "serviceId": "1",
+          "date": "2024-01-15",
+          "time": "10:00",
+          "status": "confirmed",
+          "total": 100000,
+          "notes": "Customer prefers short bob style",
+          "createdAt": "2024-01-10T10:00:00Z"
+        },
+        {
+          "id": "2",
+          "customerName": "Jean Mukendi",
+          "customerEmail": "jean.mukendi@example.com",
+          "customerPhone": "+243 987 654 321",
+          "service": "Deep Cleansing Facial",
+          "serviceId": "3",
+          "date": "2024-01-16",
+          "time": "14:00",
+          "status": "completed",
+          "total": 75000,
+          "notes": "Sensitive skin - use gentle products",
+          "createdAt": "2024-01-12T14:00:00Z"
+        },
+        {
+          "id": "3",
+          "customerName": "Sarah Lukaku",
+          "customerEmail": "sarah.lukaku@example.com",
+          "customerPhone": "+243 555 666 777",
+          "service": "Hair Coloring",
+          "serviceId": "2",
+          "date": "2024-01-20",
+          "time": "11:00",
+          "status": "pending",
+          "total": 150000,
+          "notes": "Brown highlights requested",
+          "createdAt": "2024-01-18T11:00:00Z"
+        }
+      ],
+      "revenue": {
+        "total": 325000,
+        "thisMonth": 325000,
+        "lastMonth": 200000,
+        "monthly": [
+          { "month": "January", "amount": 325000 },
+          { "month": "December", "amount": 200000 },
+          { "month": "November", "amount": 180000 },
+          { "month": "October", "amount": 160000 },
+          { "month": "September", "amount": 140000 }
+        ]
+      },
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "2",
+      "shopName": "Glamour Studio",
+      "owner": {
+        "firstName": "Sarah",
+        "lastName": "Lukaku",
+        "email": "sarah@glamourstudio.com",
+        "phone": "+243 444 555 666"
+      },
+      "address": {
+        "street": "321 Boulevard du 30 Juin",
+        "city": "Kinshasa",
+        "state": "Kinshasa",
+        "zipCode": "00000",
+        "country": "DR Congo"
+      },
+      "status": "approved",
+      "services": [
+        {
+          "id": "4",
+          "name": "Manicure & Pedicure",
+          "category": "extras",
+          "price": 120000,
+          "duration": 120,
+          "description": "Professional nail care and styling",
+          "isActive": true
+        },
+        {
+          "id": "5",
+          "name": "Bridal Makeup",
+          "category": "face",
+          "price": 200000,
+          "duration": 180,
+          "description": "Complete bridal makeup package",
+          "isActive": true
+        },
+        {
+          "id": "6",
+          "name": "Eyebrow Shaping",
+          "category": "face",
+          "price": 50000,
+          "duration": 45,
+          "description": "Professional eyebrow shaping and styling",
+          "isActive": true
+        }
+      ],
+      "appointments": [
+        {
+          "id": "4",
+          "customerName": "Grace Mukendi",
+          "customerEmail": "grace.mukendi@example.com",
+          "customerPhone": "+243 111 222 333",
+          "service": "Bridal Makeup",
+          "serviceId": "5",
+          "date": "2024-01-18",
+          "time": "09:00",
+          "status": "completed",
+          "total": 200000,
+          "notes": "Wedding day makeup",
+          "createdAt": "2024-01-15T09:00:00Z"
+        },
+        {
+          "id": "5",
+          "customerName": "Lisa Mwamba",
+          "customerEmail": "lisa.mwamba@example.com",
+          "customerPhone": "+243 777 888 999",
+          "service": "Manicure & Pedicure",
+          "serviceId": "4",
+          "date": "2024-01-19",
+          "time": "15:00",
+          "status": "confirmed",
+          "total": 120000,
+          "notes": "French manicure preferred",
+          "createdAt": "2024-01-16T15:00:00Z"
+        }
+      ],
+      "revenue": {
+        "total": 320000,
+        "thisMonth": 320000,
+        "lastMonth": 180000,
+        "monthly": [
+          { "month": "January", "amount": 320000 },
+          { "month": "December", "amount": 180000 },
+          { "month": "November", "amount": 160000 },
+          { "month": "October", "amount": 140000 },
+          { "month": "September", "amount": 120000 }
+        ]
+      },
+      "createdAt": "2024-01-10T00:00:00Z"
+    }
+  ],
+  "stats": {
+    "totalVendors": 2,
+    "approvedVendors": 2,
+    "pendingVendors": 0,
+    "totalServices": 6,
+    "totalAppointments": 5,
+    "pendingAppointments": 1,
+    "confirmedAppointments": 2,
+    "completedAppointments": 2,
+    "totalRevenue": 645000
+  }
+}

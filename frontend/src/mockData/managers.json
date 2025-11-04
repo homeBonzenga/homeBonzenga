@@ -1,0 +1,96 @@
+{
+  "managers": [
+    {
+      "id": "1",
+      "firstName": "Manager",
+      "lastName": "One",
+      "email": "manager1@homebonzenga.com",
+      "phone": "+243 111 222 333",
+      "department": "Operations",
+      "status": "active",
+      "totalApprovals": 45,
+      "pendingApprovals": 8
+    },
+    {
+      "id": "2",
+      "firstName": "Manager",
+      "lastName": "Two",
+      "email": "manager2@homebonzenga.com",
+      "phone": "+243 444 555 666",
+      "department": "Quality Assurance",
+      "status": "active",
+      "totalApprovals": 32,
+      "pendingApprovals": 5
+    }
+  ],
+  "pendingVendorApplications": [
+    {
+      "id": "1",
+      "vendorName": "Glamour Studio",
+      "ownerName": "Jane Smith",
+      "email": "contact@glamourstudio.com",
+      "phone": "+243 987 654 321",
+      "address": "456 Business District, Limete",
+      "city": "Kinshasa",
+      "services": ["Manicure", "Pedicure", "Nail Art"],
+      "appliedAt": "2024-01-20T10:00:00Z",
+      "status": "pending",
+      "documents": ["business_license.pdf", "tax_certificate.pdf"]
+    },
+    {
+      "id": "2",
+      "vendorName": "Elegant Beauty",
+      "ownerName": "Michael Brown",
+      "email": "info@elegantbeauty.com",
+      "phone": "+243 555 123 456",
+      "address": "789 Commercial Street, Ngaliema",
+      "city": "Kinshasa",
+      "services": ["Hair Styling", "Makeup", "Facial Treatment"],
+      "appliedAt": "2024-01-19T14:30:00Z",
+      "status": "pending",
+      "documents": ["business_license.pdf", "insurance_certificate.pdf"]
+    }
+  ],
+  "pendingBeauticianApplications": [
+    {
+      "id": "1",
+      "firstName": "Emma",
+      "lastName": "Wilson",
+      "email": "emma.wilson@email.com",
+      "phone": "+243 555 123 456",
+      "bio": "Skincare specialist with extensive training in facial treatments and anti-aging therapies.",
+      "skills": ["Facial Treatments", "Skincare Consultation", "Anti-aging Treatments"],
+      "yearsOfExperience": "6-10 years",
+      "city": "Kinshasa",
+      "address": "789 Pine St, Kinshasa",
+      "certifications": ["Licensed Esthetician", "Advanced Skincare Specialist"],
+      "appliedAt": "2024-01-13T09:15:00Z",
+      "status": "pending_manager_review",
+      "documents": ["certificate1.pdf", "certificate2.pdf"]
+    },
+    {
+      "id": "2",
+      "firstName": "Lisa",
+      "lastName": "Chen",
+      "email": "lisa.chen@email.com",
+      "phone": "+243 777 888 999",
+      "bio": "Professional hair stylist and makeup artist with expertise in bridal and special event styling.",
+      "skills": ["Bridal Hair & Makeup", "Hair Styling", "Makeup", "Eyebrow Shaping"],
+      "yearsOfExperience": "3-5 years",
+      "city": "Kinshasa",
+      "address": "321 Elm St, Kinshasa",
+      "certifications": ["Professional Hair Stylist", "Bridal Makeup Specialist"],
+      "appliedAt": "2024-01-12T11:45:00Z",
+      "status": "pending_manager_review",
+      "documents": ["certificate1.pdf", "certificate2.pdf", "portfolio.pdf"]
+    }
+  ],
+  "stats": {
+    "totalManagers": 5,
+    "activeManagers": 5,
+    "pendingVendorApplications": 7,
+    "pendingBeauticianApplications": 8,
+    "totalApprovalsThisMonth": 23,
+    "averageApprovalTime": "2.5 days"
+  }
+}

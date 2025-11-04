@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #4e342e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #3b2c26;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Auth Debug Test</h1>
+    
+    <div class="test-section">
+        <h2>Current localStorage Status</h2>
+        <div id="localStorage-status"></div>
+        <button onclick="checkLocalStorage()">Check localStorage</button>
+        <button onclick="clearLocalStorage()">Clear localStorage</button>
+        <button onclick="setTestUser()">Set Test User</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Instructions</h2>
+        <ol>
+            <li>Open the app at <a href="http://localhost:3003" target="_blank">http://localhost:3003</a></li>
+            <li>Sign in as manager (manager@homebonzenga.com / Manager@123)</li>
+            <li>Navigate to manager dashboard</li>
+            <li>Check the debug panel in the top-right corner</li>
+            <li>Refresh the page and see if it stays on manager dashboard</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Log</h2>
+        <div id="debug-log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function checkLocalStorage() {
+            const user = localStorage.getItem('user');
+            const token = localStorage.getItem('token');
+            
+            document.getElementById('localStorage-status').innerHTML = `
+                <div class="status ${user ? 'success' : 'error'}">
+                    User: ${user ? 'EXISTS' : 'NOT FOUND'}
+                </div>
+                <div class="status ${token ? 'success' : 'error'}">
+                    Token: ${token ? 'EXISTS' : 'NOT FOUND'}
+                </div>
+                ${user ? `<div class="status info">User Data: ${user.substring(0, 100)}...</div>` : ''}
+            `;
+            
+            log(`localStorage check: User=${!!user}, Token=${!!token}`);
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            log('localStorage cleared');
+            checkLocalStorage();
+        }
+
+        function setTestUser() {
+            const testUser = {
+                id: 'test-manager-id',
+                email: 'manager@homebonzenga.com',
+                firstName: 'Manager',
+                lastName: 'User',
+                role: 'MANAGER',
+                status: 'ACTIVE'
+            };
+            localStorage.setItem('user', JSON.stringify(testUser));
+            localStorage.setItem('token', 'test-token');
+            log('Test user set in localStorage');
+            checkLocalStorage();
+        }
+
+        function clearLog() {
+            document.getElementById('debug-log').innerHTML = '';
+        }
+
+        // Auto-check on page load
+        window.onload = function() {
+            log('Debug page loaded');
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>
+
+
+

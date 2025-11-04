@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Loading Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background-color: #4e342e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #3b2c26;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manager Loading Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Instructions</h2>
+        <p>This test helps verify that the manager page loading issue has been fixed.</p>
+        <ol>
+            <li>Open the application at <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></li>
+            <li>Sign in as a manager user</li>
+            <li>Navigate to the manager dashboard</li>
+            <li>Refresh the page (F5 or Ctrl+R)</li>
+            <li>Verify that the page loads properly without getting stuck</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results">
+            <div class="status info">Ready to test - Click "Start Test" to begin</div>
+        </div>
+        <button onclick="startTest()">Start Test</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function startTest() {
+            log('Starting manager loading test...');
+            updateStatus('Testing in progress...', 'info');
+            
+            // Test 1: Check if frontend is accessible
+            fetch('http://localhost:5173')
+                .then(response => {
+                    if (response.ok) {
+                        log('✅ Frontend server is accessible');
+                        return testBackend();
+                    } else {
+                        throw new Error('Frontend server returned error');
+                    }
+                })
+                .catch(error => {
+                    log('❌ Frontend server test failed: ' + error.message);
+                    updateStatus('Frontend server not accessible', 'error');
+                });
+        }
+
+        function testBackend() {
+            log('Testing backend server...');
+            return fetch('http://localhost:3001/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        log('✅ Backend server is accessible');
+                        updateStatus('Both servers are running - Ready for manual testing', 'success');
+                        log('✅ Test setup complete - Please proceed with manual testing');
+                    } else {
+                        throw new Error('Backend server returned error');
+                    }
+                })
+                .catch(error => {
+                    log('❌ Backend server test failed: ' + error.message);
+                    updateStatus('Backend server not accessible', 'error');
+                });
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '<div class="status info">Ready to test - Click "Start Test" to begin</div>';
+            document.getElementById('test-log').innerHTML = '';
+        }
+
+        // Auto-start test when page loads
+        window.onload = function() {
+            log('Test page loaded');
+            log('Frontend URL: http://localhost:5173');
+            log('Backend URL: http://localhost:3001');
+        };
+    </script>
+</body>
+</html>

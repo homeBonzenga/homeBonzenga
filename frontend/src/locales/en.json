@@ -1,0 +1,548 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "actions": "Actions"
+  },
+  "navigation": {
+    "home": "Home",
+    "services": "Services",
+    "vendors": "Vendors",
+    "appointments": "Appointments",
+    "products": "Products",
+    "payments": "Payments",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "findServices": "Find Services",
+    "myBookings": "My Bookings",
+    "manageBookings": "Manage Bookings",
+    "adminPanel": "Admin Panel",
+    "getStarted": "Get Started"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "atHomeServices": "At-Home Services",
+    "salonVisit": "Salon Visit",
+    "howItWorks": "How It Works",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "appointments": "Appointments",
+    "products": "Products",
+    "revenue": "Revenue",
+    "assignedAppointments": "Assigned Appointments",
+    "earnings": "Earnings",
+    "vendors": "Vendors",
+    "beauticians": "Beauticians",
+    "approvals": "Approvals",
+    "users": "Users",
+    "managers": "Managers",
+    "reports": "Reports",
+    "pendingVendors": "Pending Vendors",
+    "allVendors": "All Vendors",
+    "financials": "Financials",
+    "settings": "Settings",
+    "logout": "Logout",
+    "signup": "Sign Up"
+  },
+  "home": {
+    "hero": {
+      "badge": "Beauty Services at Your Doorstep",
+      "title": "Premium Beauty Services",
+      "subtitle": "Book Certified Beauticians Anytime, Anywhere",
+      "description": "Connect with professional beauticians and salons near you. Book hair, makeup, and wellness services with just a few taps. Quality service, guaranteed satisfaction.",
+      "bookServices": "Book Services",
+      "joinProfessional": "Join as Professional",
+      "bookAtHome": "Book At-Home Service",
+      "findSalon": "Find a Salon Near Me"
+    },
+    "features": {
+      "easySearch": "Easy Search",
+      "easySearchDesc": "Find nearby professionals with ratings and reviews",
+      "atHomeService": "At-Home Service",
+      "atHomeServiceDesc": "Professional services delivered to your location",
+      "flexibleBooking": "Flexible Booking",
+      "flexibleBookingDesc": "Book instantly or schedule for later",
+      "securePayment": "Secure Payment",
+      "securePaymentDesc": "Multiple payment options with secure processing"
+    },
+    "services": {
+      "title": "Professional Beauty Services",
+      "subtitle": "Trusted and Verified Specialists",
+      "atHome": {
+        "title": "At-Home Services",
+        "description": "Get beauty services in the comfort of your home.",
+        "button": "Book Now"
+      },
+      "salon": {
+        "title": "Salon Visits",
+        "description": "Book appointments at verified salons near you.",
+        "button": "Find a Salon"
+      },
+      "categories": {
+        "hair": {
+          "title": "Hair Styling",
+          "description": "Braids, Coloring, Bridal Styling, and More"
+        },
+        "face": {
+          "title": "Facials",
+          "description": "Glowing skin treatments and care"
+        },
+        "extras": {
+          "title": "Extras",
+          "description": "Products and additional services"
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Booking in just a few steps",
+      "steps": {
+        "step1": {
+          "title": "Choose a Service",
+          "description": "Select the service you need"
+        },
+        "step2": {
+          "title": "Pick Time & Date",
+          "description": "Choose your convenient slot"
+        },
+        "step3": {
+          "title": "Manager Assigns Beautician",
+          "description": "Verified beautician is assigned"
+        },
+        "step4": {
+          "title": "Enjoy the Service",
+          "description": "Beautician arrives at your home or salon"
+        },
+        "step5": {
+          "title": "Pay Securely",
+          "description": "Pay via card or mobile money"
+        }
+      }
+    },
+    "whyChoose": {
+      "title": "Why Choose Home Bonzenga?",
+      "subtitle": "We ensure professional, safe, and reliable services",
+      "features": {
+        "verified": {
+          "title": "Verified Specialists",
+          "description": "Only certified professionals"
+        },
+        "flexible": {
+          "title": "Flexible Scheduling",
+          "description": "Book when it suits you"
+        },
+        "secure": {
+          "title": "Secure Payments",
+          "description": "Trusted and encrypted system"
+        },
+        "updates": {
+          "title": "Real-Time Updates",
+          "description": "Stay informed about your bookings"
+        }
+      }
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "subtitle": "Get the latest offers and beauty tips",
+      "placeholder": "Enter your email",
+      "button": "Subscribe"
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Join thousands of satisfied customers who trust HOME BONZENGA for their beauty needs.",
+      "bookFirstService": "Book Your First Service",
+      "browseServices": "Browse Services"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account to continue",
+      "signIn": "Sign In",
+      "email": "Email Address",
+      "password": "Password",
+      "enterEmail": "Enter your email",
+      "enterPassword": "Enter your password",
+      "signingIn": "Signing In...",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "demoAccounts": "Demo Accounts:",
+      "adminDemo": "Admin: admin@beautybook.com / admin123",
+      "customerDemo": "Customer: customer@demo.com / demo123",
+      "vendorDemo": "Vendor: vendor@demo.com / demo123"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join HOME BONZENGA and start your journey",
+      "signUp": "Sign Up",
+      "accountType": "Account Type",
+      "customer": "Customer",
+      "professional": "Professional",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "phone": "Phone Number (Optional)",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "createPassword": "Create a password",
+      "confirmYourPassword": "Confirm your password",
+      "creatingAccount": "Creating Account...",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in"
+    }
+  },
+  "dashboard": {
+    "customer": {
+      "welcome": "Welcome back, {{name}}!",
+      "subtitle": "Manage your beauty appointments and discover new services",
+      "upcomingAppointments": "Upcoming Appointments",
+      "noUpcoming": "No upcoming appointments",
+      "bookNewAppointment": "Book New Appointment",
+      "recentBookings": "Recent Bookings",
+      "noRecentBookings": "No recent bookings",
+      "viewAllBookings": "View All Bookings",
+      "quickActions": "Quick Actions",
+      "searchServices": "Search Services",
+      "viewProfile": "View Profile",
+      "featuredServices": "Featured Services",
+      "manicure": "Manicure",
+      "manicureDesc": "Professional nail care",
+      "hairStyling": "Hair Styling",
+      "hairStylingDesc": "Cut, color & styling",
+      "facial": "Facial",
+      "facialDesc": "Rejuvenating treatments",
+      "makeup": "Makeup",
+      "makeupDesc": "Professional application"
+    },
+    "vendor": {
+      "welcome": "Welcome back, {{name}}!",
+      "subtitle": "Manage your services and appointments",
+      "todayAppointments": "Today's Appointments",
+      "pendingBookings": "Pending Bookings",
+      "completedServices": "Completed Services",
+      "earnings": "Earnings",
+      "addService": "Add New Service",
+      "manageServices": "Manage Services",
+      "viewSchedule": "View Schedule"
+    },
+    "admin": {
+      "welcome": "Admin Dashboard",
+      "subtitle": "Manage the entire platform",
+      "totalUsers": "Total Users",
+      "totalVendors": "Total Vendors",
+      "totalBookings": "Total Bookings",
+      "totalRevenue": "Total Revenue",
+      "recentActivity": "Recent Activity",
+      "manageUsers": "Manage Users",
+      "manageVendors": "Manage Vendors",
+      "viewAnalytics": "View Analytics"
+    }
+  },
+  "search": {
+    "title": "Find Beauty Services",
+    "subtitle": "Discover and book appointments with top-rated beauty professionals",
+    "searchServices": "Search Services",
+    "searchPlaceholder": "e.g., manicure, haircut, facial...",
+    "category": "Category",
+    "allCategories": "All Categories",
+    "salon": "Salon",
+    "nailServices": "Nail Services",
+    "makeup": "Makeup",
+    "spaWellness": "Spa & Wellness",
+    "barberShop": "Barber Shop",
+    "location": "Location",
+    "allLocations": "All Locations",
+    "downtown": "Downtown",
+    "westside": "Westside",
+    "eastside": "Eastside",
+    "northside": "Northside",
+    "southside": "Southside",
+    "availableVendors": "Available Vendors",
+    "bookAppointment": "Book Appointment"
+  },
+  "booking": {
+    "title": "Book Appointment",
+    "selectService": "Select Service",
+    "selectDate": "Select Date",
+    "selectTime": "Select Time",
+    "personalInfo": "Personal Information",
+    "payment": "Payment",
+    "confirmation": "Confirmation",
+    "serviceDetails": "Service Details",
+    "appointmentDetails": "Appointment Details",
+    "totalAmount": "Total Amount",
+    "bookNow": "Book Now",
+    "bookingConfirmed": "Booking Confirmed!",
+    "appointmentBooked": "Your appointment has been successfully booked."
+  },
+  "payment": {
+    "title": "Payment",
+    "paymentMethod": "Payment Method",
+    "card": "Card",
+    "upi": "UPI",
+    "wallet": "Wallet",
+    "cardNumber": "Card Number",
+    "expiryDate": "Expiry Date",
+    "cvv": "CVV",
+    "cardholderName": "Cardholder Name",
+    "payNow": "Pay Now",
+    "processing": "Processing...",
+    "paymentSuccessful": "Payment Successful!",
+    "paymentFailed": "Payment Failed",
+    "tryAgain": "Try Again"
+  },
+  "footer": {
+    "company": {
+      "about": "About Us",
+      "careers": "Careers",
+      "contact": "Contact Us",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy"
+    },
+    "services": {
+      "title": "Services",
+      "atHome": "At-Home Services",
+      "salons": "Salon Visits",
+      "categories": "Categories",
+      "booking": "Booking"
+    },
+    "support": {
+      "title": "Support",
+      "help": "Help Center",
+      "faq": "FAQ"
+    },
+    "social": {
+      "title": "Follow Us"
+    },
+    "copyright": "© 2025 Home Bonzenga. All rights reserved."
+  },
+  "language": {
+    "english": "English",
+    "french": "French",
+    "switchLanguage": "Switch Language"
+  },
+  "vendor": {
+    "details": {
+      "title": "Vendor Details",
+      "services": "Services",
+      "products": "Products",
+      "reviews": "Reviews",
+      "bookNow": "Book Now",
+      "addToCart": "Add to Cart",
+      "removeFromCart": "Remove from Cart",
+      "workingHours": "Working Hours",
+      "contact": "Contact Information",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "rating": "Rating",
+      "reviews": "Reviews",
+      "experience": "Experience",
+      "specialties": "Specialties",
+      "availability": "Availability",
+      "price": "Price",
+      "duration": "Duration",
+      "description": "Description",
+      "category": "Category",
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock"
+    },
+    "registration": {
+      "title": "Join as a Professional",
+      "subtitle": "Start your beauty business with HOME BONZENGA",
+      "step1": "Personal Information",
+      "step2": "Business Details",
+      "step3": "Review & Submit",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "shopName": "Business Name",
+      "description": "Business Description",
+      "address": "Address",
+      "city": "City",
+      "state": "State/Province",
+      "zipCode": "ZIP/Postal Code",
+      "country": "Country",
+      "businessType": "Business Type",
+      "yearsInBusiness": "Years in Business",
+      "specialties": "Specialties",
+      "businessTypes": {
+        "beautySalon": "Beauty Salon",
+        "hairSalon": "Hair Salon",
+        "nailSalon": "Nail Salon",
+        "spaCenter": "Spa Center",
+        "barbershop": "Barbershop",
+        "beautyClinic": "Beauty Clinic",
+        "mobileBeautyService": "Mobile Beauty Service",
+        "other": "Other"
+      },
+      "specialtyOptions": {
+        "hairStyling": "Hair Styling",
+        "hairColoring": "Hair Coloring",
+        "hairCutting": "Hair Cutting",
+        "facialTreatments": "Facial Treatments",
+        "makeup": "Makeup",
+        "nailArt": "Nail Art",
+        "manicure": "Manicure",
+        "pedicure": "Pedicure",
+        "massage": "Massage",
+        "spaTreatments": "Spa Treatments",
+        "bridalServices": "Bridal Services",
+        "mensGrooming": "Men's Grooming"
+      },
+      "next": "Next",
+      "previous": "Previous",
+      "submit": "Submit Application",
+      "submitting": "Submitting...",
+      "success": "Application submitted successfully!",
+      "error": "Failed to submit application. Please try again."
+    }
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "send": "Send Message",
+      "sending": "Sending...",
+      "success": "Message Sent! Thank you for reaching out. We'll get back to you soon.",
+      "error": "Failed to send message. Please try again."
+    },
+    "info": {
+      "email": {
+        "title": "Email Us",
+        "content": "hello@homebonzenga.com",
+        "description": "Send us an email anytime"
+      },
+      "phone": {
+        "title": "Call Us",
+        "content": "+243 123 456 789",
+        "description": "Mon-Fri from 8am to 6pm"
+      },
+      "address": {
+        "title": "Visit Us",
+        "content": "Kinshasa, Democratic Republic of Congo",
+        "description": "Come say hello at our office"
+      },
+      "hours": {
+        "title": "Working Hours",
+        "content": "Mon-Fri: 8am-6pm",
+        "description": "Weekend support available"
+      }
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Passion Meets Precision",
+    "description": "We are dedicated to creating exceptional beauty experiences that combine cutting-edge technology with thoughtful service. Every appointment is an opportunity to deliver excellence.",
+    "mission": "Our Mission",
+    "missionText": "To connect beauty professionals with clients through a seamless, secure, and innovative platform.",
+    "vision": "Our Vision",
+    "visionText": "To be the leading beauty services platform in Africa, empowering professionals and delighting customers.",
+    "values": "Our Values",
+    "valuesText": "Quality, Trust, Innovation, and Customer Satisfaction are at the heart of everything we do."
+  },
+  "services": {
+    "management": {
+      "title": "Manage Services",
+      "addService": "Add New Service",
+      "editService": "Edit Service",
+      "deleteService": "Delete Service",
+      "serviceName": "Service Name",
+      "description": "Description",
+      "price": "Price",
+      "duration": "Duration (minutes)",
+      "category": "Category",
+      "isActive": "Active",
+      "save": "Save Service",
+      "cancel": "Cancel",
+      "confirmDelete": "Are you sure you want to delete this service?",
+      "success": "Service saved successfully!",
+      "error": "Failed to save service. Please try again."
+    }
+  },
+  "appointments": {
+    "title": "Appointments",
+    "upcoming": "Upcoming Appointments",
+    "past": "Past Appointments",
+    "noAppointments": "No appointments found",
+    "bookNew": "Book New Appointment",
+    "viewDetails": "View Details",
+    "cancel": "Cancel Appointment",
+    "reschedule": "Reschedule",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "contactInfo": "Contact Information",
+    "preferences": "Preferences",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "success": "Profile updated successfully!",
+    "error": "Failed to update profile. Please try again."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "validation": "Please check your input and try again.",
+    "server": "Server error. Please try again later."
+  },
+  "success": {
+    "generic": "Operation completed successfully!",
+    "saved": "Changes saved successfully!",
+    "deleted": "Item deleted successfully!",
+    "created": "Item created successfully!",
+    "updated": "Item updated successfully!"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "phone": "Please enter a valid phone number",
+    "password": "Password must be at least 8 characters",
+    "passwordMatch": "Passwords do not match",
+    "minLength": "Must be at least {{count}} characters",
+    "maxLength": "Must be no more than {{count}} characters"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go Home",
+    "searchServices": "Search Services"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "services": "Services",
+    "howItWorks": "Comment ça marche",
+    "login": "Connexion",
+    "signup": "S'inscrire",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "login": {
+      "title": "Bon retour",
+      "subtitle": "Connectez-vous à votre compte pour continuer",
+      "email": "Email",
+      "password": "Mot de passe",
+      "enterEmail": "Entrez votre email",
+      "enterPassword": "Entrez votre mot de passe",
+      "signIn": "Se connecter",
+      "signingIn": "Connexion en cours...",
+      "noAccount": "Vous n'avez pas de compte?",
+      "signUpLink": "S'inscrire",
+      "demoAccounts": "Comptes de démonstration"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "subtitle": "Rejoignez HOME BONZENGA et commencez votre parcours beauté",
+      "accountType": "Type de compte",
+      "customer": "Client",
+      "professional": "Professionnel",
+      "beautician": "Beautécienne",
+      "firstName": "Prénom",
+      "lastName": "Nom de famille",
+      "email": "Email",
+      "phone": "Téléphone",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "createPassword": "Créer un mot de passe",
+      "confirmYourPassword": "Confirmez votre mot de passe",
+      "createAccount": "Créer un compte",
+      "creatingAccount": "Création du compte...",
+      "hasAccount": "Vous avez déjà un compte?",
+      "signInLink": "Se connecter"
+    }
+  },
+  "dashboard": {
+    "customer": {
+      "welcome": "Bon retour, {{name}}!",
+      "subtitle": "Gérez vos rendez-vous et réservations beauté",
+      "upcomingAppointments": "Rendez-vous à venir",
+      "recentBookings": "Réservations récentes",
+      "quickActions": "Actions rapides",
+      "featuredServices": "Services en vedette",
+      "bookNewAppointment": "Réserver un nouveau rendez-vous",
+      "viewAllBookings": "Voir toutes les réservations",
+      "searchServices": "Rechercher des services",
+      "viewProfile": "Voir le profil",
+      "noUpcoming": "Aucun rendez-vous à venir",
+      "noRecentBookings": "Aucune réservation récente",
+      "manicure": "Manucure",
+      "manicureDesc": "Soins et stylisme des ongles professionnels",
+      "hairStyling": "Coiffure",
+      "hairStylingDesc": "Coupe, couleur et style de cheveux",
+      "facial": "Soin du visage",
+      "facialDesc": "Traitement de soin de la peau rajeunissant",
+      "makeup": "Maquillage",
+      "makeupDesc": "Application de maquillage professionnel"
+    }
+  }
+}
+

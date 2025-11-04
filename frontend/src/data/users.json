@@ -1,0 +1,30 @@
+[
+  {
+    "email": "admin@homebonzenga.com",
+    "password": "admin123",
+    "role": "admin",
+    "firstName": "Admin",
+    "lastName": "User"
+  },
+  {
+    "email": "manager@homebonzenga.com",
+    "password": "manager123",
+    "role": "manager",
+    "firstName": "Manager",
+    "lastName": "User"
+  },
+  {
+    "email": "vendor@homebonzenga.com",
+    "password": "vendor123",
+    "role": "vendor",
+    "firstName": "Vendor",
+    "lastName": "User"
+  },
+  {
+    "email": "user@homebonzenga.com",
+    "password": "user123",
+    "role": "user",
+    "firstName": "Customer",
+    "lastName": "User"
+  }
+]

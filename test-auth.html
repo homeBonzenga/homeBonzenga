@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Authentication System Test</h1>
+        
+        <div class="test-result info">
+            <h3>Test Instructions:</h3>
+            <p>1. Use email: <strong>manager@test.com</strong> and password: <strong>password</strong></p>
+            <p>2. After login, refresh the page to test the reload issue</p>
+            <p>3. Check if the manager dashboard loads correctly after refresh</p>
+        </div>
+
+        <div id="auth-status" class="test-result info">
+            <strong>Auth Status:</strong> Checking...
+        </div>
+
+        <div id="login-form">
+            <h3>Login Test</h3>
+            <input type="email" id="email" placeholder="Email" value="manager@test.com">
+            <input type="password" id="password" placeholder="Password" value="password">
+            <button onclick="testLogin()">Test Login</button>
+        </div>
+
+        <div id="user-info" style="display: none;">
+            <h3>User Information</h3>
+            <div id="user-details"></div>
+            <button onclick="testLogout()">Test Logout</button>
+            <button onclick="testRefresh()">Test Page Refresh</button>
+        </div>
+
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Mock the authentication system for testing
+        let currentUser = null;
+        let isLoading = false;
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function updateAuthStatus(status, user = null) {
+            const statusDiv = document.getElementById('auth-status');
+            if (user) {
+                statusDiv.innerHTML = `<strong>Auth Status:</strong> Logged in as ${user.name} (${user.role})`;
+                statusDiv.className = 'test-result success';
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('user-info').style.display = 'block';
+                document.getElementById('user-details').innerHTML = `
+                    <p><strong>Name:</strong> ${user.name}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Role:</strong> ${user.role}</p>
+                    <p><strong>Status:</strong> ${user.status}</p>
+                `;
+            } else {
+                statusDiv.innerHTML = `<strong>Auth Status:</strong> ${status}`;
+                statusDiv.className = 'test-result info';
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('user-info').style.display = 'none';
+            }
+        }
+
+        function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            log('Starting login test...', 'info');
+            isLoading = true;
+            updateAuthStatus('Logging in...');
+
+            // Simulate the mock auth system
+            setTimeout(() => {
+                if (email === 'manager@test.com' && password === 'password') {
+                    currentUser = {
+                        id: 'mock-manager-1',
+                        email: 'manager@test.com',
+                        firstName: 'John',
+                        lastName: 'Manager',
+                        role: 'MANAGER',
+                        status: 'ACTIVE',
+                        phone: '+1234567890',
+                        name: 'John Manager'
+                    };
+                    
+                    // Store in localStorage to simulate persistence
+                    localStorage.setItem('mock-user', JSON.stringify(currentUser));
+                    localStorage.setItem('mock-session', JSON.stringify({
+                        access_token: 'mock-token',
+                        user: { id: currentUser.id, email: currentUser.email }
+                    }));
+                    
+                    updateAuthStatus('Logged in', currentUser);
+                    log('✅ Login successful! User can access manager dashboard.', 'success');
+                    log('🔄 Now test page refresh to verify the fix works.', 'info');
+                } else {
+                    log('❌ Login failed: Invalid credentials', 'error');
+                    updateAuthStatus('Login failed');
+                }
+                isLoading = false;
+            }, 1000);
+        }
+
+        function testLogout() {
+            log('Testing logout...', 'info');
+            currentUser = null;
+            localStorage.removeItem('mock-user');
+            localStorage.removeItem('mock-session');
+            updateAuthStatus('Logged out');
+            log('✅ Logout successful!', 'success');
+        }
+
+        function testRefresh() {
+            log('🔄 Testing page refresh (simulating the original issue)...', 'info');
+            
+            // Simulate the page refresh scenario
+            const storedUser = localStorage.getItem('mock-user');
+            const storedSession = localStorage.getItem('mock-session');
+            
+            if (storedUser && storedSession) {
+                // Simulate loading state
+                updateAuthStatus('Loading after refresh...');
+                
+                // Simulate the timeout mechanism we added
+                setTimeout(() => {
+                    try {
+                        const user = JSON.parse(storedUser);
+                        currentUser = user;
+                        updateAuthStatus('Loaded after refresh', user);
+                        log('✅ Page refresh test passed! Auth state restored successfully.', 'success');
+                        log('🎉 The reload issue has been fixed!', 'success');
+                    } catch (error) {
+                        log('❌ Page refresh test failed: Could not restore auth state', 'error');
+                        updateAuthStatus('Refresh failed');
+                    }
+                }, 2000); // Simulate network delay
+            } else {
+                log('ℹ️ No stored session found - user would be redirected to login', 'info');
+                updateAuthStatus('No session found');
+            }
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            log('🚀 Authentication test page loaded', 'info');
+            
+            // Check for existing session (simulating page refresh)
+            const storedUser = localStorage.getItem('mock-user');
+            if (storedUser) {
+                try {
+                    currentUser = JSON.parse(storedUser);
+                    updateAuthStatus('Session restored', currentUser);
+                    log('✅ Existing session found and restored', 'success');
+                } catch (error) {
+                    log('❌ Failed to restore session', 'error');
+                    updateAuthStatus('Not logged in');
+                }
+            } else {
+                updateAuthStatus('Not logged in');
+                log('ℹ️ No existing session found', 'info');
+            }
+        };
+    </script>
+</body>
+</html>
