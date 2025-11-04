@@ -206,72 +206,120 @@ export class SupabaseAuthService {
         throw userError;
       }
 
+      // Get metadata once (used in multiple places)
+      const metadata = authData.user.user_metadata || {};
+      const rawMetadata = authData.user.raw_user_meta_data || {};
+
       // If profile doesn't exist, try to create it from auth metadata
       // Use upsert to handle race conditions (trigger might create user simultaneously)
       if (!userData) {
-        console.warn('User profile not found, creating from auth metadata...');
-        const metadata = authData.user.user_metadata || {};
-        const rawMetadata = authData.user.raw_user_meta_data || {};
+        console.warn('User profile not found, attempting to create from auth metadata...');
         
-        // Use upsert to handle duplicate key errors gracefully
-        // This will insert if not exists, or update if exists (though update is unlikely)
-        const upsertResult = await supabase
+        // First, try one more time to fetch (trigger might have just created it)
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const finalFetchResult = await supabase
           .from('users')
-          .upsert({
-            id: authData.user.id,
-            email: authData.user.email || '',
-            first_name: metadata.first_name || rawMetadata.first_name || 'User',
-            last_name: metadata.last_name || rawMetadata.last_name || '',
-            role: (metadata.role || rawMetadata.role || 'CUSTOMER').toUpperCase(),
-            status: 'ACTIVE'
-          }, {
-            onConflict: 'id' // Use id as conflict resolution key
-          })
           .select(`
             *,
             vendor:vendors(id, shopname, status)
           `)
-          .single();
+          .eq('id', authData.user.id)
+          .maybeSingle();
         
-        if (upsertResult.error) {
-          // If upsert fails, try fetching again (trigger might have created it)
-          const retryResult = await supabase
-            .from('users')
-            .select(`
-              *,
-              vendor:vendors(id, shopname, status)
-            `)
-            .eq('id', authData.user.id)
-            .maybeSingle();
-          
-          if (retryResult.data) {
-            userData = retryResult.data;
-          } else {
-            console.error('Failed to create/fetch user profile:', upsertResult.error);
-            // Still return user from auth metadata as fallback
-            const fallbackUser: User = {
-              id: authData.user.id,
-              email: authData.user.email || '',
-              firstName: metadata.first_name || rawMetadata.first_name || 'User',
-              lastName: metadata.last_name || rawMetadata.last_name || '',
-              role: (metadata.role || rawMetadata.role || 'CUSTOMER').toUpperCase() as "ADMIN" | "MANAGER" | "VENDOR" | "CUSTOMER",
-              status: 'ACTIVE'
-            };
-            
-            return handleSupabaseSuccess({
-              user: fallbackUser,
-              session: authData.session
-            });
-          }
+        if (finalFetchResult.data) {
+          userData = finalFetchResult.data;
+          console.log('✅ User profile found after retry (created by trigger)');
         } else {
-          userData = upsertResult.data;
+          // Only try to create if user really doesn't exist
+          try {
+            const upsertResult = await supabase
+              .from('users')
+              .upsert({
+                id: authData.user.id,
+                email: authData.user.email || '',
+                first_name: metadata.first_name || rawMetadata.first_name || 'User',
+                last_name: metadata.last_name || rawMetadata.last_name || '',
+                role: (metadata.role || rawMetadata.role || 'CUSTOMER').toUpperCase(),
+                status: 'ACTIVE'
+              }, {
+                onConflict: 'id' // Use id as conflict resolution key
+              })
+              .select(`
+                *,
+                vendor:vendors(id, shopname, status)
+              `)
+              .maybeSingle(); // Use maybeSingle to avoid errors if upsert fails
+            
+            if (upsertResult.data) {
+              userData = upsertResult.data;
+              console.log('✅ User profile created successfully');
+            } else if (upsertResult.error) {
+              // Handle 409 Conflict error - user was created by trigger
+              if (upsertResult.error.code === '23505' || upsertResult.error.message?.includes('duplicate') || upsertResult.error.status === 409) {
+                console.log('⚠️ User already exists (likely created by trigger), fetching...');
+                // Fetch the user that was created
+                const conflictFetchResult = await supabase
+                  .from('users')
+                  .select(`
+                    *,
+                    vendor:vendors(id, shopname, status)
+                  `)
+                  .eq('id', authData.user.id)
+                  .maybeSingle();
+                
+                if (conflictFetchResult.data) {
+                  userData = conflictFetchResult.data;
+                  console.log('✅ User profile fetched after conflict');
+                } else {
+                  console.error('Failed to fetch user after conflict:', conflictFetchResult.error);
+                }
+              } else {
+                console.error('Failed to create user profile:', upsertResult.error);
+              }
+            }
+          } catch (upsertError: any) {
+            // Handle any other errors during upsert
+            console.error('Upsert error caught:', upsertError);
+            // Try one final fetch
+            const lastFetchResult = await supabase
+              .from('users')
+              .select(`
+                *,
+                vendor:vendors(id, shopname, status)
+              `)
+              .eq('id', authData.user.id)
+              .maybeSingle();
+            
+            if (lastFetchResult.data) {
+              userData = lastFetchResult.data;
+            }
+          }
         }
       }
 
+      // If we have userData, return it
+      if (userData) {
+        return handleSupabaseSuccess({
+          user: this.mapDatabaseUserToUser(userData),
+          session: authData.session
+        });
+      }
+
+      // Final fallback - return user from auth metadata if all else fails
+      console.warn('⚠️ Using fallback user from auth metadata');
+      const fallbackUser: User = {
+        id: authData.user.id,
+        email: authData.user.email || '',
+        firstName: metadata.first_name || rawMetadata.first_name || 'User',
+        lastName: metadata.last_name || rawMetadata.last_name || '',
+        role: (metadata.role || rawMetadata.role || 'CUSTOMER').toUpperCase() as "ADMIN" | "MANAGER" | "VENDOR" | "CUSTOMER",
+        status: 'ACTIVE'
+      };
+      
       return handleSupabaseSuccess({
-        user: this.mapDatabaseUserToUser(userData),
+        user: fallbackUser,
         session: authData.session
-      })
+      });
     } catch (error: any) {
       return handleSupabaseError(error)
     }

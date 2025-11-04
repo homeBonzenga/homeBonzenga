@@ -23,7 +23,8 @@ import {
   UserCheck,
   UserX,
   Shield,
-  Clock
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -52,8 +53,10 @@ const UsersPage = () => {
 
   const roleOptions = [
     { value: 'all', label: 'All Roles' },
-    { value: 'CUSTOMER', label: 'Customers' }
-    // Note: Only CUSTOMER role is shown since this page displays only customer-type users
+    { value: 'CUSTOMER', label: 'Customers' },
+    { value: 'VENDOR', label: 'Vendors' },
+    { value: 'MANAGER', label: 'Managers' },
+    { value: 'ADMIN', label: 'Admins' }
   ];
 
   const statusOptions = [
@@ -65,24 +68,59 @@ const UsersPage = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roleFilter, statusFilter]); // Refetch when filters change
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
       
-      // Fetch only CUSTOMER users from Supabase (exclude vendors, managers, admins)
-      const { data: usersData, error: usersError } = await supabase
+      // Verify admin is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error('❌ No active session found');
+        toast.error('Authentication required. Please log in again.');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('📊 Fetching all users from Supabase...');
+      
+      // Fetch ALL users (not just CUSTOMER) - Admin should see all users
+      let query = supabase
         .from('users')
         .select('id, email, phone, first_name, last_name, role, status, created_at, avatar')
-        .eq('role', 'CUSTOMER')
         .order('created_at', { ascending: false });
+      
+      // Apply role filter if not 'all'
+      if (roleFilter !== 'all') {
+        query = query.eq('role', roleFilter);
+      }
+      
+      const { data: usersData, error: usersError } = await query;
 
       if (usersError) {
-        throw usersError;
+        console.error('❌ Error fetching users:', {
+          code: usersError.code,
+          message: usersError.message,
+          details: usersError.details,
+          hint: usersError.hint
+        });
+        
+        if (usersError.code === 'PGRST301' || usersError.message?.includes('permission denied') || usersError.message?.includes('RLS')) {
+          toast.error('RLS Policy Error: Admin may not have permission to view users. Please run the admin RLS migration.');
+        } else {
+          toast.error(`Failed to fetch users: ${usersError.message}`);
+        }
+        setUsers([]);
+        setLoading(false);
+        return;
       }
 
+      console.log('📊 Users fetched:', usersData?.length || 0);
+
       if (!usersData || usersData.length === 0) {
+        console.warn('⚠️ No users found in database');
         setUsers([]);
         setLoading(false);
         return;
@@ -91,18 +129,37 @@ const UsersPage = () => {
       // Fetch bookings and payments for each user to calculate stats
       const userIds = usersData.map(u => u.id);
       
-      // Fetch bookings for all users
-      const { data: bookingsData } = await supabase
-        .from('bookings')
-        .select('customer_id, total, status')
-        .in('customer_id', userIds);
-
-      // Fetch payments for all users
-      const { data: paymentsData } = await supabase
-        .from('payments')
-        .select('user_id, amount, status')
-        .in('user_id', userIds)
-        .eq('status', 'COMPLETED');
+      // Fetch bookings for all users (only if we have users)
+      let bookingsData: any[] = [];
+      let paymentsData: any[] = [];
+      
+      if (userIds.length > 0) {
+        const [bookingsResult, paymentsResult] = await Promise.all([
+          // Fetch bookings for all users
+          supabase
+            .from('bookings')
+            .select('customer_id, total, status')
+            .in('customer_id', userIds),
+          // Fetch payments for all users
+          supabase
+            .from('payments')
+            .select('user_id, amount, status')
+            .in('user_id', userIds)
+            .eq('status', 'COMPLETED')
+        ]);
+        
+        if (bookingsResult.error) {
+          console.error('Error fetching bookings:', bookingsResult.error);
+        } else {
+          bookingsData = bookingsResult.data || [];
+        }
+        
+        if (paymentsResult.error) {
+          console.error('Error fetching payments:', paymentsResult.error);
+        } else {
+          paymentsData = paymentsResult.data || [];
+        }
+      }
 
       // Calculate stats per user
       const bookingsByUser = new Map<string, { count: number; total: number }>();
@@ -146,8 +203,9 @@ const UsersPage = () => {
       });
 
       setUsers(mappedUsers);
+      console.log('✅ Users loaded successfully:', mappedUsers.length);
     } catch (error: any) {
-      console.error('Error fetching users:', error);
+      console.error('❌ Error fetching users:', error);
       toast.error(`Failed to load users: ${error.message || 'Unknown error'}`);
       setUsers([]);
     } finally {
@@ -249,9 +307,23 @@ const UsersPage = () => {
               <p className="text-[#6d4c41]">Manage all platform users and their accounts</p>
             </div>
             <div className="flex items-center space-x-2 mt-4 sm:mt-0">
+              <Button 
+                variant="outline" 
+                className="border-[#4e342e] text-[#4e342e] hover:bg-[#4e342e] hover:text-white"
+                onClick={fetchUsers}
+                disabled={loading}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
               <Badge className="bg-[#4e342e] text-white">
-                {filteredUsers.length} Users
+                {users.length} Total Users
               </Badge>
+              {filteredUsers.length !== users.length && (
+                <Badge className="bg-[#6d4c41] text-white">
+                  {filteredUsers.length} Filtered
+                </Badge>
+              )}
             </div>
           </div>
 

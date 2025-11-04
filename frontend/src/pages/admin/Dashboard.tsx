@@ -30,7 +30,12 @@ import {
   Shield,
   TrendingDown,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  X,
+  AlertTriangle,
+  UserX,
+  Phone,
+  Mail
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -58,14 +63,22 @@ interface AdminStats {
 
 interface RecentActivity {
   id: string;
-  type: 'user_registration' | 'vendor_approval' | 'booking_completed' | 'payment_processed' | 'dispute_created';
+  type: 'user_registration' | 'vendor_approval' | 'booking_completed' | 'payment_processed' | 'dispute_created' | 'refund_processed' | 'manager_approval' | 'beautician_approval' | 'vendor_suspension' | 'user_suspension' | 'payment_failed' | 'booking_cancelled';
   description: string;
   timestamp: string;
   user?: {
     name: string;
     email: string;
+    phone?: string;
+  };
+  vendor?: {
+    name: string;
+    businessName: string;
+    email: string;
   };
   amount?: number;
+  status?: 'success' | 'pending' | 'failed' | 'cancelled';
+  bookingType?: string;
 }
 
 
@@ -114,217 +127,265 @@ const AdminDashboard = () => {
       if (!session) {
         console.error('❌ No active session found');
         toast.error('Authentication required. Please log in again.');
+        setLoading(false);
         return;
       }
       
-      console.log('🔍 Admin session verified:', {
+      console.log('✅ Admin session verified:', {
         userId: session.user.id,
         email: session.user.email
       });
       
-      // Fetch CUSTOMERS only (users with role='CUSTOMER')
-      // Note: Vendors are stored in the vendors table, not counted as users
-      console.log('🔍 Starting to fetch CUSTOMERS from Supabase...');
+      // Verify the user is actually an admin - use user from context if available, otherwise query
+      let currentUser: any = null;
       
-      let customersResult;
-      try {
-        // First, try to fetch all users to check if there's any data at all
-        // Using authenticated supabase client which should have admin permissions via RLS
-        const allUsersCheck = await supabase
-          .from('users')
-          .select('id, status, role, email, first_name, last_name')
-          .limit(5);
-        
-        console.log('🔍 All users check:', {
-          error: allUsersCheck.error,
-          errorCode: allUsersCheck.error?.code,
-          errorMessage: allUsersCheck.error?.message,
-          dataLength: allUsersCheck.data?.length || 0,
-          sample: allUsersCheck.data?.[0],
-          allRoles: allUsersCheck.data ? [...new Set(allUsersCheck.data.map((u: any) => u.role))] : []
-        });
-
-        // Try fetching customers with exact role match
-        customersResult = await supabase
-          .from('users')
-          .select('id, status, role, email, first_name, last_name')
-          .eq('role', 'CUSTOMER');
-        
-        // If that fails or returns empty, try case-insensitive matching
-        if (customersResult.error || !customersResult.data || customersResult.data.length === 0) {
-          console.log('🔍 Primary query failed or empty, trying fallback...');
-          
-          // Try fetching all users and filter manually (handles case variations)
-          const fallbackResult = await supabase
+      // First, try to use user from context (already loaded)
+      if (user && user.role) {
+        currentUser = user;
+        console.log('✅ Using user from context:', { role: user.role, id: user.id });
+      } else {
+        // Fallback: Try to query the user table
+        // Use a more permissive query that should work with basic RLS (view own profile)
+        try {
+          const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('id, status, role, email, first_name, last_name');
+            .select('id, role, status')
+            .eq('id', session.user.id)
+            .maybeSingle(); // Use maybeSingle instead of single to avoid errors if not found
           
-          if (!fallbackResult.error && fallbackResult.data) {
-            console.log('🔍 Fallback query succeeded, filtering customers...');
-            console.log('🔍 All roles found:', [...new Set(fallbackResult.data.map((u: any) => u.role))]);
-            
-            // Filter customers manually (case-insensitive)
-            const filteredCustomers = fallbackResult.data.filter((u: any) => {
-              const role = (u.role || '').toUpperCase();
-              return role === 'CUSTOMER';
+          if (userError) {
+            console.warn('⚠️ Could not fetch user from database (this may be normal if RLS policies need migration):', {
+              code: userError.code,
+              message: userError.message
             });
-            
-            console.log('🔍 Filtered customers:', filteredCustomers.length);
-            
-            customersResult = {
-              ...fallbackResult,
-              data: filteredCustomers
-            };
-          } else if (fallbackResult.error) {
-            console.error('❌ Fallback query also failed:', fallbackResult.error);
-            customersResult = fallbackResult;
+            // Continue anyway - we'll verify admin status through the actual queries
+          } else if (userData) {
+            currentUser = userData;
+            console.log('✅ User fetched from database:', { role: userData.role, id: userData.id });
           }
+        } catch (queryError) {
+          console.warn('⚠️ Error querying user table:', queryError);
+          // Continue anyway - RLS might be blocking but we'll verify through actual queries
         }
-      } catch (queryError: any) {
-        console.error('❌ Query exception:', queryError);
-        customersResult = { data: null, error: queryError };
       }
       
-      console.log('🔍 Customers query result:', {
-        error: customersResult.error,
-        errorCode: customersResult.error?.code,
-        errorMessage: customersResult.error?.message,
-        dataLength: customersResult.data?.length || 0,
-        sample: customersResult.data?.slice(0, 2)
-      });
-
-      if (customersResult.error) {
-        console.error('❌ Error fetching customers:', customersResult.error);
-        console.error('❌ Error code:', customersResult.error.code);
-        console.error('❌ Error message:', customersResult.error.message);
-        console.error('❌ Error details:', JSON.stringify(customersResult.error, null, 2));
-        
-        // Check for common RLS errors
-        if (customersResult.error.code === 'PGRST301' || customersResult.error.message?.includes('permission denied') || customersResult.error.message?.includes('RLS')) {
-          toast.error('Permission denied: Admin RLS policy may be missing. Please run the migration: 20250131_add_admin_users_policy.sql');
-          console.error('❌ RLS Policy Error: Admins need a policy to view all users. Please check supabase/migrations/20250131_add_admin_users_policy.sql');
-        } else {
-          toast.error(`Failed to fetch customers: ${customersResult.error.message || 'Unknown error'}`);
-        }
-        // Set empty array instead of undefined
-        customersResult.data = customersResult.data || [];
+      // If we have user data, verify admin role
+      if (currentUser && currentUser.role !== 'ADMIN') {
+        console.error('❌ User is not an admin:', currentUser.role);
+        toast.error('Access denied: Admin privileges required.');
+        setLoading(false);
+        return;
       }
-
-      // Fetch all statistics in parallel for better performance (excluding users which we already fetched)
+      
+      // If we couldn't verify admin status, log a warning but continue
+      // The actual queries will fail if user is not admin (due to RLS)
+      if (!currentUser) {
+        console.warn('⚠️ Could not verify admin role from database. Continuing - RLS policies will enforce access.');
+      } else {
+        console.log('✅ Admin role verified:', {
+          userId: currentUser.id,
+          role: currentUser.role,
+          status: currentUser.status
+        });
+      }
+      
+      // Fetch all statistics in parallel for better performance
+      console.log('📊 Fetching dashboard statistics from Supabase...');
+      
       const [
+        allUsersData,
         vendorsData,
-        managersData,
         bookingsData,
         paymentsData,
         refundsData,
         recentUsers,
         recentVendors,
         recentBookings,
-        recentPayments
+        recentPayments,
+        auditLogsData,
+        bookingEventsData,
+        refundedPaymentsData,
+        failedPaymentsData,
+        cancelledBookingsData,
+        vendorStatusChangesData
       ] = await Promise.all([
-        // Vendors statistics
-        supabase.from('vendors').select('id, status'),
-        // Managers statistics
-        supabase.from('users').select('id, status').eq('role', 'MANAGER'),
-        // Bookings statistics
-        supabase.from('bookings').select('id, status, total, created_at'),
-        // Payments statistics
-        supabase.from('payments').select('id, amount, status, created_at'),
-        // Refunds (payments with refund_amount)
-        supabase.from('payments').select('id').not('refund_amount', 'is', null),
-        // Recent customers (last 10) - only CUSTOMER role
-        supabase.from('users').select('id, first_name, last_name, email, created_at, role').eq('role', 'CUSTOMER').order('created_at', { ascending: false }).limit(10),
+        // Fetch ALL users (not filtered by role) - Total Users should count all users
+        supabase.from('users').select('id, status, role, email, first_name, last_name, phone, created_at, updated_at'),
+        // Vendors statistics - fetch all to calculate status-based counts
+        supabase.from('vendors').select('id, status, shopname, user_id, created_at, updated_at'),
+        // Bookings statistics - fetch all to calculate status-based counts
+        supabase.from('bookings').select('id, status, total, created_at, customer_id, vendor_id'),
+        // Payments statistics - fetch all to calculate revenue
+        supabase.from('payments').select('id, amount, status, created_at, user_id, booking_id'),
+        // Refunds (payments with refund_amount or status='REFUNDED')
+        supabase.from('payments').select('id, amount, status').or('refund_amount.not.is.null,status.eq.REFUNDED').limit(100),
+        // Recent users (last 10) - all roles
+        supabase.from('users').select('id, first_name, last_name, email, created_at, role, status').order('created_at', { ascending: false }).limit(10),
         // Recent vendors (last 10)
-        supabase.from('vendors').select('id, shopname, status, created_at, user:users!user_id(email, first_name, last_name)').order('created_at', { ascending: false }).limit(10),
+        supabase.from('vendors').select('id, shopname, status, created_at, user_id').order('created_at', { ascending: false }).limit(10),
         // Recent bookings (last 20)
-        supabase.from('bookings').select('id, status, total, created_at, customer:users!customer_id(first_name, last_name, email)').order('created_at', { ascending: false }).limit(20),
+        supabase.from('bookings').select('id, status, total, created_at, customer_id, vendor_id').order('created_at', { ascending: false }).limit(20),
         // Recent payments (last 20)
-        supabase.from('payments').select('id, amount, status, created_at, user:users!user_id(first_name, last_name, email)').order('created_at', { ascending: false }).limit(20)
+        supabase.from('payments').select('id, amount, status, created_at, user_id, booking_id').order('created_at', { ascending: false }).limit(20),
+        // Recent audit logs for activity feed
+        supabase.from('audit_logs').select('id, user_id, action, resource, resource_id, old_data, new_data, created_at').order('created_at', { ascending: false }).limit(30),
+        // Booking events for activity tracking
+        supabase.from('booking_events').select('id, booking_id, type, data, created_at').order('created_at', { ascending: false }).limit(30),
+        // Refunded payments
+        supabase.from('payments').select('id, amount, status, refund_amount, refund_reason, refunded_at, user_id, booking_id, created_at').or('refund_amount.not.is.null,status.eq.REFUNDED').order('created_at', { ascending: false }).limit(20),
+        // Failed payments
+        supabase.from('payments').select('id, amount, status, user_id, booking_id, created_at').eq('status', 'FAILED').order('created_at', { ascending: false }).limit(20),
+        // Cancelled bookings
+        supabase.from('bookings').select('id, status, total, customer_id, vendor_id, booking_type, created_at, updated_at').eq('status', 'CANCELLED').order('updated_at', { ascending: false }).limit(20),
+        // Vendor status changes (need to check updated_at vs created_at for status changes)
+        supabase.from('vendors').select('id, shopname, status, user_id, created_at, updated_at').order('updated_at', { ascending: false }).limit(20)
       ]);
 
-      // Process CUSTOMERS statistics (users with role='CUSTOMER')
-      // Note: Vendors are counted separately from the vendors table
-      const allCustomers = customersResult.data || [];
+      // Handle errors and log them with detailed information
+      const errors: string[] = [];
       
-      console.log('📊 Customers fetched:', {
-        dataLength: allCustomers.length,
-        hasError: !!customersResult.error
-      });
-      
-      if (allCustomers.length > 0) {
-        console.log('📊 Customers data sample:', allCustomers.slice(0, 3));
-      } else {
-        console.warn('⚠️ No customers found in database. Customers might exist in Supabase Auth but not synced to public.users table.');
-        console.warn('⚠️ Check if database trigger handle_new_user() is working correctly.');
+      if (allUsersData.error) {
+        console.error('❌ Error fetching users:', {
+          code: allUsersData.error.code,
+          message: allUsersData.error.message,
+          details: allUsersData.error.details,
+          hint: allUsersData.error.hint
+        });
+        if (allUsersData.error.code === 'PGRST301' || allUsersData.error.message?.includes('permission denied') || allUsersData.error.message?.includes('RLS')) {
+          errors.push('RLS Policy Error: Admin may not have permission to view users. Please run the admin RLS migration.');
+        } else {
+          errors.push(`Failed to fetch users: ${allUsersData.error.message}`);
+        }
+      }
+      if (vendorsData.error) {
+        console.error('❌ Error fetching vendors:', vendorsData.error);
+        if (vendorsData.error.code === 'PGRST301' || vendorsData.error.message?.includes('permission denied') || vendorsData.error.message?.includes('RLS')) {
+          errors.push('RLS Policy Error: Admin may not have permission to view vendors.');
+        }
+      }
+      if (bookingsData.error) {
+        console.error('❌ Error fetching bookings:', bookingsData.error);
+      }
+      if (paymentsData.error) {
+        console.error('❌ Error fetching payments:', paymentsData.error);
       }
       
-      // Calculate customer statistics (only customers, not vendors/managers/admins)
-      const totalUsers = allCustomers.length; // Total customers only
-      const activeUsers = allCustomers.filter(u => u && u.status === 'ACTIVE').length;
-      const suspendedUsers = allCustomers.filter(u => u && u.status === 'SUSPENDED').length;
+      // Show errors if any
+      if (errors.length > 0) {
+        errors.forEach(error => toast.error(error));
+      }
       
-      console.log('📊 Customer stats:', { 
+      // Log successful data fetches
+      console.log('📊 Query Results:', {
+        users: { data: allUsersData.data?.length || 0, error: !!allUsersData.error },
+        vendors: { data: vendorsData.data?.length || 0, error: !!vendorsData.error },
+        bookings: { data: bookingsData.data?.length || 0, error: !!bookingsData.error },
+        payments: { data: paymentsData.data?.length || 0, error: !!paymentsData.error }
+      });
+
+      // Process Users statistics - ALL USERS (not just CUSTOMER role)
+      const allUsers = allUsersData.data || [];
+      const totalUsers = allUsers.length; // Total Users = ALL users in the table
+      
+      // Filter by role for specific counts
+      const customerUsers = allUsers.filter((u: any) => u?.role === 'CUSTOMER');
+      const managerUsers = allUsers.filter((u: any) => u?.role === 'MANAGER');
+      const vendorUsers = allUsers.filter((u: any) => u?.role === 'VENDOR');
+      const adminUsers = allUsers.filter((u: any) => u?.role === 'ADMIN');
+      
+      // Count active users (all roles)
+      const activeUsers = allUsers.filter((u: any) => u?.status === 'ACTIVE').length;
+      const suspendedUsers = allUsers.filter((u: any) => u?.status === 'SUSPENDED').length;
+      
+      // Total Managers = users with role='MANAGER'
+      const totalManagers = managerUsers.length;
+      const activeManagers = managerUsers.filter((m: any) => m?.status === 'ACTIVE').length;
+      
+      console.log('📊 Users stats:', { 
         totalUsers, 
+        customers: customerUsers.length,
+        managers: totalManagers,
+        vendors: vendorUsers.length,
+        admins: adminUsers.length,
         activeUsers, 
         suspendedUsers
       });
-      
-      // If no customers found, show a warning
-      if (totalUsers === 0 && !customersResult.error) {
-        console.warn('⚠️ Customers table appears empty. If customers exist in Supabase Auth, they need to be synced via database trigger.');
-        toast.warning('No customers found in database. Users may exist in Auth but need to be synced to public.users table.');
-      }
 
-      // Process vendors statistics - check for errors
-      if (vendorsData.error) {
-        console.error('Error fetching vendors:', vendorsData.error);
-      }
+      // Process Vendors statistics
       const allVendors = vendorsData.data || [];
       const totalVendors = allVendors.length;
-      const pendingVendors = allVendors.filter(v => v.status === 'PENDING').length;
-      const activeVendors = allVendors.filter(v => v.status === 'APPROVED').length;
+      const pendingVendors = allVendors.filter((v: any) => v?.status === 'PENDING').length;
+      const activeVendors = allVendors.filter((v: any) => v?.status === 'APPROVED').length;
+      
+      console.log('📊 Vendors stats:', {
+        totalVendors,
+        pendingVendors,
+        activeVendors
+      });
 
-      // Process managers statistics - check for errors
-      if (managersData.error) {
-        console.error('Error fetching managers:', managersData.error);
-      }
-      const allManagers = managersData.data || [];
-      const totalManagers = allManagers.length;
-      const activeManagers = allManagers.filter(m => m.status === 'ACTIVE').length;
-
-      // Process bookings statistics - check for errors
-      if (bookingsData.error) {
-        console.error('Error fetching bookings:', bookingsData.error);
-      }
+      // Process Bookings statistics
       const allBookings = bookingsData.data || [];
       const totalBookings = allBookings.length;
-      const completedBookings = allBookings.filter(b => b.status === 'COMPLETED').length;
+      const completedBookings = allBookings.filter((b: any) => b?.status === 'COMPLETED').length;
       // Note: At-home vs salon bookings would need an additional field in bookings table
-      // For now, we'll estimate based on a 60/40 split or use address type if available
       const atHomeBookings = Math.floor(totalBookings * 0.6); // Estimate
       const salonBookings = Math.floor(totalBookings * 0.4); // Estimate
+      
+      console.log('📊 Bookings stats:', {
+        totalBookings,
+        completedBookings,
+        dataLength: allBookings.length
+      });
 
-      // Process payments statistics - check for errors
-      if (paymentsData.error) {
-        console.error('Error fetching payments:', paymentsData.error);
-      }
+      // Process Payments statistics - Calculate revenue from completed payments
       const allPayments = paymentsData.data || [];
-      const completedPayments = allPayments.filter(p => p.status === 'COMPLETED');
-      const totalRevenue = completedPayments.reduce((sum, p) => sum + (parseFloat(p.amount.toString()) || 0), 0);
+      const completedPayments = allPayments.filter((p: any) => p?.status === 'COMPLETED' || p?.status === 'SUCCESS');
+      
+      // Calculate total revenue from completed payments
+      let totalRevenue = 0;
+      if (completedPayments.length > 0) {
+        totalRevenue = completedPayments.reduce((sum: number, p: any) => {
+          const amount = parseFloat(p.amount?.toString() || '0');
+          return sum + (isNaN(amount) ? 0 : amount);
+        }, 0);
+      } else {
+        // Fallback: Calculate revenue from completed bookings if payments table is empty
+        const completedBookingPayments = allBookings
+          .filter((b: any) => b?.status === 'COMPLETED')
+          .reduce((sum: number, b: any) => {
+            const total = parseFloat(b.total?.toString() || '0');
+            return sum + (isNaN(total) ? 0 : total);
+          }, 0);
+        totalRevenue = completedBookingPayments;
+      }
       
       // Calculate monthly revenue (current month)
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthlyPayments = completedPayments.filter(p => {
+      const monthlyPayments = completedPayments.filter((p: any) => {
+        if (!p.created_at) return false;
         const paymentDate = new Date(p.created_at);
         return paymentDate >= firstDayOfMonth;
       });
-      const monthlyRevenue = monthlyPayments.reduce((sum, p) => sum + (parseFloat(p.amount.toString()) || 0), 0);
+      const monthlyRevenue = monthlyPayments.reduce((sum: number, p: any) => {
+        const amount = parseFloat(p.amount?.toString() || '0');
+        return sum + (isNaN(amount) ? 0 : amount);
+      }, 0);
+      
+      console.log('📊 Revenue stats:', {
+        totalRevenue,
+        monthlyRevenue,
+        completedPaymentsCount: completedPayments.length,
+        allPaymentsCount: allPayments.length
+      });
 
       // Pending payouts (payments with status PENDING or PROCESSING)
       const pendingPayouts = allPayments
-        .filter(p => p.status === 'PENDING' || p.status === 'PROCESSING')
-        .reduce((sum, p) => sum + (parseFloat(p.amount.toString()) || 0), 0);
+        .filter((p: any) => p?.status === 'PENDING' || p?.status === 'PROCESSING')
+        .reduce((sum: number, p: any) => {
+          const amount = parseFloat(p.amount?.toString() || '0');
+          return sum + (isNaN(amount) ? 0 : amount);
+        }, 0);
 
       // Refund requests
       const refundRequests = refundsData.data?.length || 0;
@@ -344,92 +405,302 @@ const AdminDashboard = () => {
         ? reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length
         : 0;
 
-      // Build recent activity feed
+      // Build comprehensive recent activity feed from multiple sources
       const activities: RecentActivity[] = [];
 
-      // Add recent customer registrations (only customers, not vendors/managers)
-      if (recentUsers.data) {
+      // Helper function to get user info
+      const getUserInfo = (userId: string) => {
+        const user = allUsers.find((u: any) => u.id === userId);
+        if (!user) return undefined;
+        return {
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+          email: user.email || '',
+          phone: user.phone || undefined
+        };
+      };
+
+      // Helper function to get vendor info
+      const getVendorInfo = (vendorId: string) => {
+        const vendor = vendorsData.data?.find((v: any) => v.id === vendorId);
+        if (!vendor) return undefined;
+        const vendorUser = vendor.user_id ? getUserInfo(vendor.user_id) : undefined;
+        return {
+          name: vendorUser?.name || 'Unknown',
+          businessName: vendor.shopname || 'Unknown Vendor',
+          email: vendorUser?.email || ''
+        };
+      };
+
+      // 1. User Registrations (from users table)
+      if (recentUsers.data && recentUsers.data.length > 0) {
         recentUsers.data.forEach((user: any) => {
-          // Only add customers to recent activity
-          if (user.role === 'CUSTOMER') {
+          const roleName = user.role === 'CUSTOMER' ? 'User' : user.role === 'VENDOR' ? 'Vendor' : user.role === 'MANAGER' ? 'Manager' : user.role === 'ADMIN' ? 'Admin' : 'User';
+          activities.push({
+            id: `user-reg-${user.id}-${user.created_at}`,
+            type: 'user_registration',
+            description: `New ${roleName} Registration`,
+            timestamp: user.created_at,
+            user: {
+              name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+              email: user.email || ''
+            },
+            status: 'success'
+          });
+        });
+      }
+
+      // 2. Vendor Approvals (from vendors with status APPROVED)
+      if (vendorStatusChangesData.data && vendorStatusChangesData.data.length > 0) {
+        vendorStatusChangesData.data.forEach((vendor: any) => {
+          if (vendor.status === 'APPROVED') {
+            const vendorUser = vendor.user_id ? getUserInfo(vendor.user_id) : undefined;
             activities.push({
-              id: `customer-${user.id}`,
-          type: 'user_registration',
-              description: 'New customer registered',
-              timestamp: user.created_at,
-              user: {
-                name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-                email: user.email || ''
-              }
+              id: `vendor-approval-${vendor.id}-${vendor.updated_at || vendor.created_at}`,
+              type: 'vendor_approval',
+              description: 'Vendor Approved',
+              timestamp: vendor.updated_at || vendor.created_at,
+              vendor: {
+                name: vendorUser?.name || 'Unknown',
+                businessName: vendor.shopname || 'Unknown Vendor',
+                email: vendorUser?.email || ''
+              },
+              status: 'success'
+            });
+          } else if (vendor.status === 'SUSPENDED') {
+            const vendorUser = vendor.user_id ? getUserInfo(vendor.user_id) : undefined;
+            activities.push({
+              id: `vendor-suspension-${vendor.id}-${vendor.updated_at || vendor.created_at}`,
+              type: 'vendor_suspension',
+              description: 'Vendor Suspended',
+              timestamp: vendor.updated_at || vendor.created_at,
+              vendor: {
+                name: vendorUser?.name || 'Unknown',
+                businessName: vendor.shopname || 'Unknown Vendor',
+                email: vendorUser?.email || ''
+              },
+              status: 'success'
             });
           }
         });
       }
 
-      // Add recent vendor approvals/changes
-      if (recentVendors.data) {
-        recentVendors.data.forEach((vendor: any) => {
-          const userInfo = vendor.user;
+      // 3. Manager/Beautician Approvals (from users with MANAGER role)
+      if (recentUsers.data && recentUsers.data.length > 0) {
+        recentUsers.data
+          .filter((u: any) => u.role === 'MANAGER' && u.status === 'ACTIVE')
+          .forEach((manager: any) => {
+            activities.push({
+              id: `manager-approval-${manager.id}-${manager.created_at}`,
+              type: 'manager_approval',
+              description: 'Manager Approval',
+              timestamp: manager.created_at,
+              user: {
+                name: `${manager.first_name || ''} ${manager.last_name || ''}`.trim() || 'Unknown',
+                email: manager.email || ''
+              },
+              status: 'success'
+            });
+          });
+      }
+
+      // 4. Booking Completions (from bookings with status COMPLETED)
+      if (recentBookings.data && recentBookings.data.length > 0) {
+        recentBookings.data
+          .filter((b: any) => b.status === 'COMPLETED')
+          .forEach((booking: any) => {
+            const customer = getUserInfo(booking.customer_id);
+            activities.push({
+              id: `booking-completed-${booking.id}-${booking.created_at}`,
+              type: 'booking_completed',
+              description: 'Booking Completed',
+              timestamp: booking.created_at,
+              user: customer,
+              amount: parseFloat(booking.total?.toString() || '0'),
+              status: 'success'
+            });
+          });
+      }
+
+      // 5. Booking Cancellations (from cancelled bookings)
+      if (cancelledBookingsData.data && cancelledBookingsData.data.length > 0) {
+        cancelledBookingsData.data.forEach((booking: any) => {
+          const customer = getUserInfo(booking.customer_id);
           activities.push({
-            id: `vendor-${vendor.id}`,
-            type: vendor.status === 'APPROVED' ? 'vendor_approval' : 'user_registration',
-            description: vendor.status === 'APPROVED' 
-              ? 'Vendor approved'
-              : 'New vendor registration',
-            timestamp: vendor.created_at,
-            user: {
-              name: vendor.shopname || 'Unknown Vendor',
-              email: userInfo?.email || ''
-            }
+            id: `booking-cancelled-${booking.id}-${booking.updated_at || booking.created_at}`,
+            type: 'booking_cancelled',
+            description: 'Booking Cancelled',
+            timestamp: booking.updated_at || booking.created_at,
+            user: customer,
+            amount: parseFloat(booking.total?.toString() || '0'),
+            status: 'cancelled',
+            bookingType: booking.booking_type || undefined
           });
         });
       }
 
-      // Add recent booking completions
-      if (recentBookings.data) {
-        recentBookings.data
-          .filter((b: any) => b.status === 'COMPLETED')
-          .slice(0, 5)
-          .forEach((booking: any) => {
-            const customer = booking.customer;
+      // 6. Payment Processed (from payments with status COMPLETED/SUCCESS)
+      if (recentPayments.data && recentPayments.data.length > 0) {
+        recentPayments.data
+          .filter((p: any) => p.status === 'COMPLETED' || p.status === 'SUCCESS')
+          .forEach((payment: any) => {
+            const paymentUser = getUserInfo(payment.user_id);
             activities.push({
-              id: `booking-${booking.id}`,
-          type: 'booking_completed',
-          description: 'Booking completed',
-              timestamp: booking.created_at,
-              user: customer ? {
-                name: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || 'Unknown',
-                email: customer.email || ''
-              } : undefined,
-              amount: parseFloat(booking.total?.toString() || '0')
+              id: `payment-processed-${payment.id}-${payment.created_at}`,
+              type: 'payment_processed',
+              description: 'Payment Processed',
+              timestamp: payment.created_at,
+              user: paymentUser,
+              amount: parseFloat(payment.amount?.toString() || '0'),
+              status: 'success'
             });
           });
       }
 
-      // Add recent payment processing
-      if (recentPayments.data) {
-        recentPayments.data
-          .filter((p: any) => p.status === 'COMPLETED')
-          .slice(0, 5)
-          .forEach((payment: any) => {
-            const user = payment.user;
+      // 7. Payment Failed (from failed payments)
+      if (failedPaymentsData.data && failedPaymentsData.data.length > 0) {
+        failedPaymentsData.data.forEach((payment: any) => {
+          const paymentUser = getUserInfo(payment.user_id);
+          activities.push({
+            id: `payment-failed-${payment.id}-${payment.created_at}`,
+            type: 'payment_failed',
+            description: 'Payment Failed',
+            timestamp: payment.created_at,
+            user: paymentUser,
+            amount: parseFloat(payment.amount?.toString() || '0'),
+            status: 'failed'
+          });
+        });
+      }
+
+      // 8. Refunds Processed (from refunded payments)
+      if (refundedPaymentsData.data && refundedPaymentsData.data.length > 0) {
+        refundedPaymentsData.data.forEach((payment: any) => {
+          const paymentUser = getUserInfo(payment.user_id);
+          const refundAmount = parseFloat(payment.refund_amount?.toString() || payment.amount?.toString() || '0');
+          activities.push({
+            id: `refund-processed-${payment.id}-${payment.refunded_at || payment.created_at}`,
+            type: 'refund_processed',
+            description: 'Refund Processed',
+            timestamp: payment.refunded_at || payment.created_at,
+            user: paymentUser,
+            amount: refundAmount,
+            status: 'success'
+          });
+        });
+      }
+
+      // 9. User Suspensions (from users with status SUSPENDED)
+      if (allUsersData.data && allUsersData.data.length > 0) {
+        allUsersData.data
+          .filter((u: any) => u.status === 'SUSPENDED')
+          .slice(0, 10)
+          .forEach((user: any) => {
             activities.push({
-              id: `payment-${payment.id}`,
-          type: 'payment_processed',
-          description: 'Payment processed',
-              timestamp: payment.created_at,
-              user: user ? {
+              id: `user-suspension-${user.id}-${user.updated_at || user.created_at}`,
+              type: 'user_suspension',
+              description: 'User Suspended',
+              timestamp: user.updated_at || user.created_at,
+              user: {
                 name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
                 email: user.email || ''
-              } : undefined,
-              amount: parseFloat(payment.amount?.toString() || '0')
+              },
+              status: 'success'
             });
           });
       }
 
-      // Sort activities by timestamp (most recent first) and limit to 10
-      activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      setRecentActivity(activities.slice(0, 10));
+      // 10. Booking Events (from booking_events table)
+      if (bookingEventsData.data && bookingEventsData.data.length > 0) {
+        bookingEventsData.data.forEach((event: any) => {
+          const booking = recentBookings.data?.find((b: any) => b.id === event.booking_id);
+          const customer = booking ? getUserInfo(booking.customer_id) : undefined;
+          const eventType = event.type?.toLowerCase() || '';
+          
+          let activityType: RecentActivity['type'] = 'booking_completed';
+          let description = 'Booking Event';
+          let status: RecentActivity['status'] = 'success';
+          
+          if (eventType.includes('completed')) {
+            activityType = 'booking_completed';
+            description = 'Booking Completed';
+            status = 'success';
+          } else if (eventType.includes('cancelled') || eventType.includes('cancel')) {
+            activityType = 'booking_cancelled';
+            description = 'Booking Cancelled';
+            status = 'cancelled';
+          }
+          
+          activities.push({
+            id: `booking-event-${event.id}-${event.created_at}`,
+            type: activityType,
+            description: description,
+            timestamp: event.created_at,
+            user: customer,
+            status: status
+          });
+        });
+      }
+
+      // 11. Audit Logs (from audit_logs table)
+      if (auditLogsData.data && auditLogsData.data.length > 0) {
+        auditLogsData.data.forEach((log: any) => {
+          const logUser = log.user_id ? getUserInfo(log.user_id) : undefined;
+          const action = log.action?.toLowerCase() || '';
+          const resource = log.resource?.toLowerCase() || '';
+          
+          let activityType: RecentActivity['type'] = 'user_registration';
+          let description = log.action || 'System Activity';
+          let status: RecentActivity['status'] = 'success';
+          
+          // Parse audit log actions to determine activity type
+          if (action.includes('approve') && resource.includes('vendor')) {
+            activityType = 'vendor_approval';
+            description = 'Vendor Approved';
+          } else if (action.includes('approve') && resource.includes('manager')) {
+            activityType = 'manager_approval';
+            description = 'Manager Approval';
+          } else if (action.includes('suspend') && resource.includes('vendor')) {
+            activityType = 'vendor_suspension';
+            description = 'Vendor Suspended';
+            status = 'success';
+          } else if (action.includes('suspend') && resource.includes('user')) {
+            activityType = 'user_suspension';
+            description = 'User Suspended';
+            status = 'success';
+          } else if (action.includes('refund')) {
+            activityType = 'refund_processed';
+            description = 'Refund Processed';
+          } else if (action.includes('dispute')) {
+            activityType = 'dispute_created';
+            description = 'Dispute Created';
+            status = 'pending';
+          }
+          
+          activities.push({
+            id: `audit-${log.id}-${log.created_at}`,
+            type: activityType,
+            description: description,
+            timestamp: log.created_at,
+            user: logUser,
+            status: status
+          });
+        });
+      }
+
+      // Remove duplicates based on id and sort by timestamp (most recent first)
+      const uniqueActivities = activities.filter((activity, index, self) =>
+        index === self.findIndex((a) => a.id === activity.id)
+      );
+      
+      uniqueActivities.sort((a, b) => {
+        const timeA = new Date(a.timestamp).getTime();
+        const timeB = new Date(b.timestamp).getTime();
+        return timeB - timeA;
+      });
+      
+      setRecentActivity(uniqueActivities.slice(0, 15));
+      
+      console.log('📊 Recent Activity:', uniqueActivities.length, 'unique activities loaded');
 
       // Fetch top vendors by revenue
       const { data: topVendorsData } = await supabase
@@ -497,98 +768,45 @@ const AdminDashboard = () => {
       }
 
       // Set all statistics
-      // If customers count is 0 but we got no error, there might be a sync issue
-      if (totalUsers === 0 && !customersResult.error) {
-        console.warn('⚠️ Dashboard: Customers table appears empty. If customers exist in Supabase Auth, they may need to be synced to public.users table via database trigger.');
-      }
-      
-      setStats({
-        totalUsers: totalUsers || 0, // Total customers (role='CUSTOMER') only
-        totalVendors, // Vendors from vendors table
+      console.log('📊 Setting dashboard stats:', {
+        totalUsers,
+        totalVendors,
         totalManagers,
         pendingApprovals,
         totalRevenue,
-        monthlyRevenue,
-        pendingPayouts,
-        refundRequests,
-        activeUsers: activeUsers || 0, // Active customers only
-        suspendedUsers: suspendedUsers || 0, // Suspended customers only
-        activeVendors,
-        pendingVendors,
-        totalBookings,
-        completedBookings,
-        atHomeBookings,
-        salonBookings,
-        totalCommissions,
-        pendingDisputes: 0, // Would need a disputes table
-        averageRating
+        monthlyRevenue
       });
+      
+      setStats({
+        totalUsers: totalUsers || 0, // Total ALL users (all roles combined)
+        totalVendors: totalVendors || 0, // Vendors from vendors table
+        totalManagers: totalManagers || 0, // Users with role='MANAGER'
+        pendingApprovals: pendingApprovals || 0,
+        totalRevenue: totalRevenue || 0,
+        monthlyRevenue: monthlyRevenue || 0,
+        pendingPayouts: pendingPayouts || 0,
+        refundRequests: refundRequests || 0,
+        activeUsers: activeUsers || 0, // Active users (all roles)
+        suspendedUsers: suspendedUsers || 0, // Suspended users (all roles)
+        activeVendors: activeVendors || 0,
+        pendingVendors: pendingVendors || 0,
+        totalBookings: totalBookings || 0,
+        completedBookings: completedBookings || 0,
+        atHomeBookings: atHomeBookings || 0,
+        salonBookings: salonBookings || 0,
+        totalCommissions: totalCommissions || 0,
+        pendingDisputes: 0, // Would need a disputes table
+        averageRating: averageRating || 0
+      });
+      
+      console.log('✅ Dashboard stats updated successfully');
       
     } catch (error: any) {
       console.error('Error fetching admin data:', error);
       toast.error(`Failed to load dashboard data: ${error.message || 'Unknown error'}`);
       
-      // Try to fetch at least basic customer count even if other queries fail
-      try {
-        const { data: fallbackUsers, error: fallbackError } = await supabase
-          .from('users')
-          .select('id, status, role')
-          .eq('role', 'CUSTOMER');
-        
-        if (!fallbackError && fallbackUsers) {
-          // Filter customers only
-          const fallbackCustomers = fallbackUsers.filter((u: any) => u.role === 'CUSTOMER');
-          const fallbackTotalUsers = fallbackCustomers.length;
-          const fallbackActiveUsers = fallbackCustomers.filter((u: any) => u.status === 'ACTIVE').length;
-          const fallbackSuspendedUsers = fallbackCustomers.filter((u: any) => u.status === 'SUSPENDED').length;
-          
-          setStats({
-            totalUsers: fallbackTotalUsers,
-            totalVendors: 0,
-            totalManagers: 0,
-            pendingApprovals: 0,
-            totalRevenue: 0,
-            monthlyRevenue: 0,
-            pendingPayouts: 0,
-            refundRequests: 0,
-            activeUsers: fallbackActiveUsers,
-            suspendedUsers: fallbackSuspendedUsers,
-            activeVendors: 0,
-            pendingVendors: 0,
-            totalBookings: 0,
-            completedBookings: 0,
-            atHomeBookings: 0,
-            salonBookings: 0,
-            totalCommissions: 0,
-            pendingDisputes: 0,
-            averageRating: 0
-          });
-        } else {
-          // Complete fallback to empty data
-          setStats({
-            totalUsers: 0,
-            totalVendors: 0,
-            totalManagers: 0,
-            pendingApprovals: 0,
-            totalRevenue: 0,
-            monthlyRevenue: 0,
-            pendingPayouts: 0,
-            refundRequests: 0,
-            activeUsers: 0,
-            suspendedUsers: 0,
-            activeVendors: 0,
-            pendingVendors: 0,
-            totalBookings: 0,
-            completedBookings: 0,
-            atHomeBookings: 0,
-            salonBookings: 0,
-            totalCommissions: 0,
-            pendingDisputes: 0,
-            averageRating: 0
-          });
-        }
-      } catch (fallbackError) {
-        // Final fallback
+      // Fallback: Set empty stats if all queries fail
+      console.error('❌ All queries failed, setting empty stats');
       setStats({
         totalUsers: 0,
         totalVendors: 0,
@@ -610,7 +828,6 @@ const AdminDashboard = () => {
         pendingDisputes: 0,
         averageRating: 0
       });
-      }
       
       setRecentActivity([]);
       setTopVendors([]);
@@ -637,16 +854,46 @@ const AdminDashboard = () => {
 
   const getStatusIcon = (type: string) => {
     switch (type) {
-      case 'user_registered':
-        return <UserPlus className="w-4 h-4" />;
-      case 'booking_confirmed':
-        return <Calendar className="w-4 h-4" />;
-      case 'payment_received':
-        return <CreditCard className="w-4 h-4" />;
-      case 'vendor_approved':
-        return <Building className="w-4 h-4" />;
+      case 'user_registration':
+        return <UserPlus className="w-4 h-4 text-white" />;
+      case 'vendor_approval':
+        return <Building className="w-4 h-4 text-white" />;
+      case 'booking_completed':
+        return <CheckCircle className="w-4 h-4 text-white" />;
+      case 'booking_cancelled':
+        return <X className="w-4 h-4 text-white" />;
+      case 'payment_processed':
+        return <CreditCard className="w-4 h-4 text-white" />;
+      case 'payment_failed':
+        return <AlertTriangle className="w-4 h-4 text-white" />;
+      case 'refund_processed':
+        return <RefreshCw className="w-4 h-4 text-white" />;
+      case 'dispute_created':
+        return <AlertCircle className="w-4 h-4 text-white" />;
+      case 'manager_approval':
+      case 'beautician_approval':
+        return <UserCheck className="w-4 h-4 text-white" />;
+      case 'vendor_suspension':
+        return <Building className="w-4 h-4 text-white" />;
+      case 'user_suspension':
+        return <UserX className="w-4 h-4 text-white" />;
       default:
-        return <Activity className="w-4 h-4" />;
+        return <Activity className="w-4 h-4 text-white" />;
+    }
+  };
+
+  const getStatusBadgeColor = (status?: string) => {
+    switch (status) {
+      case 'success':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'failed':
+        return 'bg-red-100 text-red-800';
+      case 'cancelled':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-blue-100 text-blue-800';
     }
   };
 
@@ -968,34 +1215,101 @@ const AdminDashboard = () => {
           <Card className="border-0 bg-white shadow-lg">
             <CardContent className="p-0">
               <div className="divide-y divide-[#f8d7da]">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="p-4 hover:bg-[#fdf6f0] transition-colors">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-[#4e342e] rounded-full flex items-center justify-center">
-                        {getStatusIcon(activity.type)}
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-[#4e342e]">{activity.description}</p>
-                        <p className="text-xs text-[#6d4c41]">
-                          {new Date(activity.timestamp).toLocaleString()}
-                        </p>
-                        {activity.user && (
-                          <p className="text-xs text-[#6d4c41]">
-                            {activity.user.name} ({activity.user.email})
-                          </p>
-                        )}
-                        {activity.amount && (
-                          <p className="text-xs text-[#4e342e] font-semibold">
-                            ${activity.amount}
-                          </p>
-                        )}
-                      </div>
-                      <Badge className="bg-[#4e342e] text-white">
-                        {activity.type.replace('_', ' ')}
-                      </Badge>
-                    </div>
+                {recentActivity.length === 0 ? (
+                  <div className="p-8 text-center text-[#6d4c41]">
+                    <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No recent activity found</p>
                   </div>
-                ))}
+                ) : (
+                  recentActivity.map((activity) => (
+                    <div key={activity.id} className="p-4 hover:bg-[#fdf6f0] transition-colors">
+                      <div className="flex items-start space-x-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          activity.status === 'success' ? 'bg-green-500' :
+                          activity.status === 'pending' ? 'bg-yellow-500' :
+                          activity.status === 'failed' ? 'bg-red-500' :
+                          activity.status === 'cancelled' ? 'bg-gray-500' :
+                          'bg-[#4e342e]'
+                        }`}>
+                          {getStatusIcon(activity.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-[#4e342e] mb-1">{activity.description}</p>
+                              <p className="text-xs text-[#6d4c41] mb-2">
+                                {new Date(activity.timestamp).toLocaleString('en-US', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                              
+                              {/* User Info */}
+                              {activity.user && (
+                                <div className="space-y-1 mb-2">
+                                  <p className="text-xs text-[#4e342e] font-medium">{activity.user.name}</p>
+                                  {activity.user.email && (
+                                    <p className="text-xs text-[#6d4c41] flex items-center gap-1">
+                                      <Mail className="w-3 h-3" />
+                                      {activity.user.email}
+                                    </p>
+                                  )}
+                                  {activity.user.phone && (
+                                    <p className="text-xs text-[#6d4c41] flex items-center gap-1">
+                                      <Phone className="w-3 h-3" />
+                                      {activity.user.phone}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {/* Vendor Info */}
+                              {activity.vendor && (
+                                <div className="space-y-1 mb-2">
+                                  <p className="text-xs text-[#4e342e] font-medium">{activity.vendor.businessName}</p>
+                                  <p className="text-xs text-[#6d4c41]">{activity.vendor.name}</p>
+                                  {activity.vendor.email && (
+                                    <p className="text-xs text-[#6d4c41] flex items-center gap-1">
+                                      <Mail className="w-3 h-3" />
+                                      {activity.vendor.email}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {/* Amount */}
+                              {activity.amount !== undefined && activity.amount > 0 && (
+                                <p className="text-sm text-[#4e342e] font-semibold mb-1">
+                                  ${activity.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </p>
+                              )}
+                              
+                              {/* Booking Type */}
+                              {activity.bookingType && (
+                                <Badge variant="outline" className="text-xs mt-1">
+                                  {activity.bookingType === 'AT_HOME' ? 'At-Home Service' : 'Salon Visit'}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                              {activity.status && (
+                                <Badge className={getStatusBadgeColor(activity.status)}>
+                                  {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
+                                </Badge>
+                              )}
+                              <Badge className="bg-[#4e342e] text-white text-xs">
+                                {activity.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
