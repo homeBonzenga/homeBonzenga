@@ -17,7 +17,7 @@ BEGIN
   ) duplicates;
   
   IF dup_count > 0 THEN
-    RAISE NOTICE 'Found % duplicate emails. Keeping the one with the most recent updated_at.';
+    RAISE NOTICE 'Found % duplicate emails. Keeping the one with the most recent updated_at.', dup_count;
     
     -- Delete duplicates, keeping the most recent one
     DELETE FROM public.users
